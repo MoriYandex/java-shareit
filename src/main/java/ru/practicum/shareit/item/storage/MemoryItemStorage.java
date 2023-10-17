@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class MemoryItemStorage implements ItemStorage {
-    private final static String OWNER_NOT_FOUND_MESSAGE = "Не найден владелец вещи!";
-    private final static String EMPTY_NAME_MESSAGE = "Наименование вещи не может быть пустым!";
-    private final static String EMPTY_DESCRIPTION_MESSAGE = "Описание вещи не может быть пустым!";
-    private final static String EMPTY_AVAILABLE_MESSAGE = "Состояние доступности вещи не может быть пустым!";
-    private final static String CHANGE_USER_MESSAGE = "Нельзя редактировать владельца вещи, вещь может быть отредактирована только её владельцем!";
-    private final static String CHANGE_REQUEST_MESSAGE = "Нельзя редактировать запрос на создание вещи!";
+    private static final String OWNER_NOT_FOUND_MESSAGE = "Не найден владелец вещи!";
+    private static final String EMPTY_NAME_MESSAGE = "Наименование вещи не может быть пустым!";
+    private static final String EMPTY_DESCRIPTION_MESSAGE = "Описание вещи не может быть пустым!";
+    private static final String EMPTY_AVAILABLE_MESSAGE = "Состояние доступности вещи не может быть пустым!";
+    private static final String CHANGE_USER_MESSAGE = "Нельзя редактировать владельца вещи, вещь может быть отредактирована только её владельцем!";
+    private static final String CHANGE_REQUEST_MESSAGE = "Нельзя редактировать запрос на создание вещи!";
     private final Map<Integer, Item> itemsMap = new HashMap<>();
     private Integer idSequence = 0;
 
