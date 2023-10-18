@@ -16,6 +16,7 @@ import ru.practicum.shareit.request.storage.RequestStorage;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,9 +26,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
     private static final String OWNER_NOT_FOUND_MESSAGE = "Не найден владелец вещи!";
-    private static final String EMPTY_NAME_MESSAGE = "Наименование вещи не может быть пустым!";
-    private static final String EMPTY_DESCRIPTION_MESSAGE = "Описание вещи не может быть пустым!";
-    private static final String EMPTY_AVAILABLE_MESSAGE = "Состояние доступности вещи не может быть пустым!";
     private static final String CHANGE_USER_MESSAGE = "Нельзя редактировать владельца вещи, вещь может быть отредактирована только её владельцем!";
     private static final String CHANGE_REQUEST_MESSAGE = "Нельзя редактировать запрос на создание вещи!";
     private final ItemMapper itemMapper;
@@ -40,9 +38,9 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto add(ItemDto itemDto, Integer userId) {
         log.info("Добавление вещи");
         User owner = userStorage.get(userId);
+        validateOwner(owner);
         ItemRequest request = requestStorage.get(itemDto.getRequestId());
         Item item = itemMapper.fromDto(itemDto, owner, request);
-        validateItem(item);
         return itemMapper.toDto(itemStorage.add(item));
     }
 
@@ -92,6 +90,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAvailableByText(String text) {
         log.info("Поиск вещей по описанию с текстом {}", text);
+        if (Strings.isBlank(text))
+            return new ArrayList<>();
         return itemStorage.getAvailableByText(text).stream().map(itemMapper::toDto).collect(Collectors.toList());
     }
 
@@ -100,22 +100,10 @@ public class ItemServiceImpl implements ItemService {
         itemStorage.deleteItemRequests(requestId);
     }
 
-    private void validateItem(Item item) {
-        if (item.getOwner() == null) {
+    private void validateOwner(User owner) {
+        if (owner == null) {
             log.error(OWNER_NOT_FOUND_MESSAGE);
             throw new NotFoundException(OWNER_NOT_FOUND_MESSAGE);
-        }
-        if (Strings.isBlank(item.getName())) {
-            log.error(EMPTY_NAME_MESSAGE);
-            throw new ValidationException(EMPTY_NAME_MESSAGE);
-        }
-        if (Strings.isBlank(item.getDescription())) {
-            log.error(EMPTY_DESCRIPTION_MESSAGE);
-            throw new ValidationException(EMPTY_DESCRIPTION_MESSAGE);
-        }
-        if (item.getAvailable() == null) {
-            log.error(EMPTY_AVAILABLE_MESSAGE);
-            throw new ValidationException(EMPTY_AVAILABLE_MESSAGE);
         }
     }
 }

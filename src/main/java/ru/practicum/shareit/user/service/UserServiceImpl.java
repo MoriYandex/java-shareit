@@ -11,10 +11,13 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -24,34 +27,34 @@ public class UserServiceImpl implements UserService {
     private final BookingService bookingService;
     private final RequestService requestService;
     private final ItemService itemService;
+    private final UserMapper userMapper;
 
     @Override
-    public User add(User user) {
+    public UserDto add(UserDto userDto) {
         log.info("Добавление пользователя");
-        validateUser(user);
-        return userStorage.add(user);
+        validateEmail(null, userDto.getEmail());
+        return userMapper.toDto(userStorage.add(userMapper.fromDto(userDto)));
     }
 
     @Override
-    public User update(User user, Integer userId) {
-        log.info("Редактирование пользователя с идентификатором {}", user.getId());
+    public UserDto update(UserDto userDto, Integer userId) {
+        log.info("Редактирование пользователя с идентификатором {}", userDto.getId());
         User toUpdate = getById(userId);
-        if (!Strings.isBlank(user.getEmail())) {
-            user.setId(userId);
-            validateUser(user);
-            toUpdate.setEmail(user.getEmail());
+        if (!Strings.isBlank(userDto.getEmail())) {
+            validateEmail(userId, userDto.getEmail());
+            toUpdate.setEmail(userDto.getEmail());
         }
-        if (!Strings.isBlank(user.getName())) {
-            toUpdate.setName(user.getName());
+        if (!Strings.isBlank(userDto.getName())) {
+            toUpdate.setName(userDto.getName());
         }
         //При работе с памятью вызывать метод хранилища необязательно, но оставляю с расчётом на работу с БД
-        return userStorage.update(toUpdate);
+        return userMapper.toDto(userStorage.update(toUpdate));
     }
 
     @Override
-    public User get(Integer userId) {
+    public UserDto get(Integer userId) {
         log.info("Поиск пользователя с идентификатором {}", userId);
-        return getById(userId);
+        return userMapper.toDto(getById(userId));
     }
 
     @Override
@@ -68,20 +71,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
+    public List<UserDto> getAll() {
         log.info("Получение всех пользователей");
-        return userStorage.getAll();
+        return userStorage.getAll().stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
-    private void validateUser(User user) {
-        if (Strings.isBlank(user.getEmail())) {
-            log.error("Электронный адрес не может быть пустым!");
-            throw new ValidationException("Электронный адрес не может быть пустым!");
-        }
-        User alterUser = userStorage.getByEmail(user.getEmail());
-        if (alterUser != null && !Objects.equals(alterUser.getId(), user.getId())) {
-            log.error("Пользователь с электронным адресом {} уже существует!", user.getEmail());
-            throw new ConflictException(String.format("Пользователь с электронным адресом %s уже существует!", user.getEmail()));
+    private void validateEmail(Integer userId, String email) {
+        User alterUser = userStorage.getByEmail(email);
+        if (alterUser != null && (userId == null || !Objects.equals(alterUser.getId(), userId))) {
+            log.error("Пользователь с электронным адресом {} уже существует!", email);
+            throw new ConflictException(String.format("Пользователь с электронным адресом %s уже существует!", email));
         }
     }
 

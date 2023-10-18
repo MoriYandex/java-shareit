@@ -1,10 +1,12 @@
 package ru.practicum.shareit.item.storage;
 
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -37,8 +39,6 @@ public class MemoryItemStorage implements ItemStorage {
 
     @Override
     public List<Item> getAvailableByText(String text) {
-        if (Strings.isBlank(text))
-            return new ArrayList<>();
         return itemsMap.values().stream().filter(x -> x.getDescription().toLowerCase().contains(text.toLowerCase()) && x.getAvailable()).collect(Collectors.toList());
     }
 

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -14,10 +15,11 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping()
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestBody ItemDto itemDto) {
+    public ItemDto add(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody ItemDto itemDto) {
         return itemService.add(itemDto, userId);
     }
 
+    //На update автоматическая валидация работать не будет, так как можно передавать неполные данные!
     @PatchMapping(path = "/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable(name = "itemId") Integer itemId, @RequestBody ItemDto itemDto) {
         return itemService.update(itemDto, userId, itemId);

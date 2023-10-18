@@ -1,13 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
-@RequiredArgsConstructor
 @Component
 public class ItemMapper {
     public ItemDto toDto(Item item) {

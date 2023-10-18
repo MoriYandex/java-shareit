@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
@@ -14,22 +15,23 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping()
-    public User add(@Valid @RequestBody User user) {
-        return userService.add(user);
+    public UserDto add(@Valid @RequestBody UserDto userDto) {
+        return userService.add(userDto);
     }
 
+    //На update автоматическая валидация работать не будет, так как можно передавать неполные данные!
     @PatchMapping(path = "/{userId}")
-    public User update(@PathVariable(name = "userId") Integer userId, @Valid @RequestBody User user) {
-        return userService.update(user, userId);
+    public UserDto update(@PathVariable(name = "userId") Integer userId, @RequestBody UserDto userDto) {
+        return userService.update(userDto, userId);
     }
 
     @GetMapping()
-    public List<User> getAll() {
+    public List<UserDto> getAll() {
         return userService.getAll();
     }
 
     @GetMapping(path = "/{userId}")
-    public User get(@PathVariable(name = "userId") Integer userID) {
+    public UserDto get(@PathVariable(name = "userId") Integer userID) {
         return userService.get(userID);
     }
 
