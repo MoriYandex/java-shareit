@@ -14,4 +14,6 @@ public interface UserStorage {
     void delete(Integer id);
 
     List<User> getAll();
+
+    User getByEmail(String email);
 }

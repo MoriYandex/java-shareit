@@ -38,11 +38,6 @@ public class MemoryRequestStorage implements RequestStorage {
 
     @Override
     public ItemRequest get(Integer id) {
-        log.info("Поиск запроса с идентификатором {}", id);
-        if (!requestMap.containsKey(id)) {
-            log.error("Запрос с идентификатором {} не найден!", id);
-            throw new NotFoundException(String.format("Запрос с идентификатором %d не найден!", id));
-        }
         return requestMap.get(id);
     }
 
