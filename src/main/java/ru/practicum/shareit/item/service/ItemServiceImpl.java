@@ -102,13 +102,9 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> bookingList = bookingRepository.findAllByItemOrderByStartDesc(item);
         LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = bookingList.stream()
-                .filter(x -> x.getItem().getId() == item.getId() && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED)
-                .sorted(Comparator.comparing(Booking::getStart))
-                .findFirst().orElse(null);
+                .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED).min(Comparator.comparing(Booking::getStart)).orElse(null);
         Booking lastBooking = bookingList.stream()
-                .filter(x -> x.getItem().getId() == item.getId() && x.getStart().isBefore(now) && x.getStatus() == BookingStatus.APPROVED)
-                .sorted(Comparator.comparing(Booking::getEnd).reversed())
-                .findFirst().orElse(null);
+                .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isBefore(now) && x.getStatus() == BookingStatus.APPROVED).max(Comparator.comparing(Booking::getEnd)).orElse(null);
         return itemMapper.toDtoWithBooking(item,
                 nextBooking != null ? bookingMapper.toInDto(nextBooking) : null,
                 lastBooking != null ? bookingMapper.toInDto(lastBooking) : null,
@@ -139,15 +135,11 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> commentList = commentRepository.getAllByOwner(owner);
         return itemList.stream().map(item -> {
             Booking nextBooking = bookingList.stream()
-                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED)
-                    .sorted(Comparator.comparing(Booking::getStart))
-                    .findFirst().orElse(null);
+                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED).min(Comparator.comparing(Booking::getStart)).orElse(null);
             Booking lastBooking = bookingList.stream()
-                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isBefore(now) && x.getStatus() == BookingStatus.APPROVED)
-                    .sorted(Comparator.comparing(Booking::getEnd).reversed())
-                    .findFirst().orElse(null);
+                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isBefore(now) && x.getStatus() == BookingStatus.APPROVED).max(Comparator.comparing(Booking::getEnd)).orElse(null);
             List<CommentDto> comments = commentList.stream()
-                    .filter(x -> x.getItem().getId() == item.getId())
+                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()))
                     .sorted(Comparator.comparing(Comment::getCreated).reversed())
                     .map(commentMapper::toDto)
                     .collect(Collectors.toList());
@@ -170,12 +162,5 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void deleteItemRequests(Integer requestId) {
         requestRepository.deleteById(requestId);
-    }
-
-    private void validateOwner(User owner) {
-        if (owner == null) {
-            log.error(OWNER_NOT_FOUND_MESSAGE);
-            throw new NotFoundException(OWNER_NOT_FOUND_MESSAGE);
-        }
     }
 }
