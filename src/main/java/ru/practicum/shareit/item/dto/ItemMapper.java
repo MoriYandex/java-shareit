@@ -2,9 +2,13 @@ package ru.practicum.shareit.item.dto;
 
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.dto.BookingInDto;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.user.User;
+
+import java.util.List;
 
 @Component
 public class ItemMapper {
@@ -14,12 +18,30 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .ownerId(item.getOwner() != null ? item.getOwner().getId() : null)
+                .ownerId(item.getOwner().getId())
                 .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 
-    public Item fromDto(ItemDto itemDto, User owner, @Nullable ItemRequest request) {
+    public ItemDtoExtended toDtoWithBooking(Item item, List<CommentDto> comments) {
+        return toDtoWithBooking(item, null, null, comments);
+    }
+
+    public ItemDtoExtended toDtoWithBooking(Item item, BookingInDto nextBooking, BookingInDto lastBooking, List<CommentDto> comments) {
+        return ItemDtoExtended.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .ownerId(item.getOwner().getId())
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
+                .nextBooking(nextBooking)
+                .lastBooking(lastBooking)
+                .comments(comments)
+                .build();
+    }
+
+    public Item fromDto(ItemDto itemDto, User owner, @Nullable Request request) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())

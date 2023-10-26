@@ -1,10 +1,8 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.user.User;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -12,10 +10,9 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
-public class ItemRequest {
+public class RequestDto {
     private Integer id;
     private String description;
-    @NotNull
-    private User requestor;
+    private Integer requestorId;
     private LocalDateTime created;
 }

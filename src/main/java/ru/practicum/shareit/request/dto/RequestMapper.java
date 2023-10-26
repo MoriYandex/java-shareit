@@ -2,29 +2,25 @@ package ru.practicum.shareit.request.dto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.user.User;
 
 @Component
 @RequiredArgsConstructor
 public class RequestMapper {
-    private final UserStorage userStorage;
-
-    public ItemRequestDto toDto(ItemRequest request) {
-        return ItemRequestDto.builder()
+    public RequestDto toDto(Request request) {
+        return RequestDto.builder()
                 .id(request.getId())
                 .description(request.getDescription())
-                .requestorId(request.getRequestor() != null ? request.getRequestor().getId() : null)
-                .created(request.getCreated())
+                .requestorId(request.getRequestor().getId())
                 .build();
     }
 
-    public ItemRequest fromDto(ItemRequestDto requestDto) {
-        return ItemRequest.builder()
+    public Request fromDto(RequestDto requestDto, User requestor) {
+        return Request.builder()
                 .id(requestDto.getId())
                 .description(requestDto.getDescription())
-                .requestor(requestDto.getRequestorId() != null ? userStorage.get(requestDto.getRequestorId()) : null)
-                .created(requestDto.getCreated())
+                .requestor(requestor)
                 .build();
     }
 

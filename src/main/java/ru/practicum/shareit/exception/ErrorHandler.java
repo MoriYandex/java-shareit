@@ -36,4 +36,11 @@ public class ErrorHandler {
         log.error(e.getMessage());
         return new ErrorResponse("Конфликт наименований", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse unsupportedErrorHandler(final UnsupportedException e) {
+        log.error(e.getMessage());
+        return new ErrorResponse(e.getMessage(), "");
+    }
 }

@@ -2,7 +2,7 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.service.RequestService;
 
 /**
@@ -11,21 +11,21 @@ import ru.practicum.shareit.request.service.RequestService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
-public class ItemRequestController {
+public class RequestController {
     private final RequestService requestService;
 
     @PostMapping()
-    public ItemRequestDto add(@RequestBody ItemRequestDto requestDto) {
+    public RequestDto add(@RequestBody RequestDto requestDto) {
         return requestService.add(requestDto);
     }
 
     @PatchMapping(path = "/{requestId}")
-    public ItemRequestDto update(@PathVariable(name = "requestId") Integer requestId, @RequestBody ItemRequestDto requestDto) {
+    public RequestDto update(@PathVariable(name = "requestId") Integer requestId, @RequestBody RequestDto requestDto) {
         return requestService.update(requestDto, requestId);
     }
 
     @GetMapping(path = "/{requestId}")
-    public ItemRequestDto get(@PathVariable(name = "requestId") Integer requestId) {
+    public RequestDto get(@PathVariable(name = "requestId") Integer requestId) {
         return requestService.get(requestId);
     }
 
