@@ -64,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
         validateTime(bookingInDto.getStart(), bookingInDto.getEnd());
         Booking booking = bookingMapper.fromDto(bookingInDto, item, booker);
         booking.setStatus(BookingStatus.WAITING);
-        return bookingMapper.toOutDto(bookingRepository.saveAndFlush(booking));
+        return bookingMapper.toOutDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -112,8 +112,7 @@ public class BookingServiceImpl implements BookingService {
 
     private BookingStatusDto getState(String state) {
         try {
-            BookingStatusDto result = BookingStatusDto.valueOf(state);
-            return result;
+            return BookingStatusDto.valueOf(state);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedException(String.format("Unknown state: %s", state));
         }
@@ -137,7 +136,7 @@ public class BookingServiceImpl implements BookingService {
             log.error("Попытка изменить статус бронирования {}, не находящегося в ожидании!", bookingId);
             throw new ValidationException(String.format("Попытка изменить статус бронирования %d, не находящегося в ожидании!", bookingId));
         }
-        return bookingMapper.toOutDto(bookingRepository.saveAndFlush(booking));
+        return bookingMapper.toOutDto(bookingRepository.save(booking));
     }
 
     @Override

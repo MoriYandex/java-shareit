@@ -54,6 +54,6 @@ public class CommentServiceImpl implements CommentService {
         }
         commentDto.setCreated(LocalDateTime.now());
         Comment comment = commentMapper.fromDto(commentDto, item, author);
-        return commentMapper.toDto(commentRepository.saveAndFlush(comment));
+        return commentMapper.toDto(commentRepository.save(comment));
     }
 }
