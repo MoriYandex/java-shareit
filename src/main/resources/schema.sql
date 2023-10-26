@@ -22,7 +22,7 @@ CREATE TABLE items (
   description varchar NOT NULL,
   is_available boolean NOT NULL,
   owner_id integer NOT NULL,
-  request_id integer NOT NULL
+  request_id integer
 );
 
 CREATE TABLE bookings (
