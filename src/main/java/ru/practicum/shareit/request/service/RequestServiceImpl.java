@@ -33,7 +33,7 @@ public class RequestServiceImpl implements RequestService {
             log.error(REQUESTOR_NOT_FOUND_MESSAGE);
             throw new NotFoundException(REQUESTOR_NOT_FOUND_MESSAGE);
         }
-        return requestMapper.toDto(requestRepository.save(requestMapper.fromDto(requestDto, requestor)));
+        return requestMapper.toDto(requestRepository.saveAndFlush(requestMapper.fromDto(requestDto, requestor)));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class RequestServiceImpl implements RequestService {
         }
         if (!Strings.isBlank(requestDto.getDescription()))
             request.setDescription(request.getDescription());
-        return requestMapper.toDto(requestRepository.save(request));
+        return requestMapper.toDto(requestRepository.saveAndFlush(request));
     }
 
     @Override

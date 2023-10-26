@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     public UserDto add(UserDto userDto) {
         log.info("Добавление пользователя");
         User user = userMapper.fromDto(userDto);
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toDto(userRepository.saveAndFlush(user));
     }
 
     @Override
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         if (!Strings.isBlank(userDto.getName())) {
             toUpdate.setName(userDto.getName());
         }
-        return userMapper.toDto(userRepository.save(toUpdate));
+        return userMapper.toDto(userRepository.saveAndFlush(toUpdate));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Integer userId) {
         log.info("Удаление пользователя с идентификатором {}", userId);
-        User user = getById(userId);
+        getById(userId);
         if (!bookingService.getAllByUserId(userId, "ALL").isEmpty())
             throw new ValidationException(String.format("Пользователь с идентификатором %d имеет бронирования, удаление невозможно!", userId));
         if (!requestService.getAllByUserId(userId).isEmpty())

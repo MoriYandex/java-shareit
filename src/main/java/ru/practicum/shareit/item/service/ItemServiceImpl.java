@@ -60,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
                 ? requestRepository.findById(itemDto.getRequestId()).orElse(null)
                 : null;
         Item item = itemMapper.fromDto(itemDto, owner, request);
-        return itemMapper.toDto(itemRepository.save(item));
+        return itemMapper.toDto(itemRepository.saveAndFlush(item));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
             item.setDescription(itemDto.getDescription());
         if (itemDto.getAvailable() != null)
             item.setAvailable(itemDto.getAvailable());
-        return itemMapper.toDto(itemRepository.save(item));
+        return itemMapper.toDto(itemRepository.saveAndFlush(item));
     }
 
     @Override
