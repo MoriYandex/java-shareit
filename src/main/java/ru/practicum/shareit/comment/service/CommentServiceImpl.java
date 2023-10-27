@@ -24,10 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CommentServiceImpl implements CommentService {
-    private static final String AUTHOR_NOT_FOUND_MESSAGE = "Не найден создатель отзыва!";
-    private static final String BOOKING_NOT_FOUND_MESSAGE = "Не найдено подтверждение использование вещи пользователем!";
-    private static final String ITEM_NOT_FOUND_MESSAGE = "Не найдена вещь для отзыва!";
-
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -39,18 +35,18 @@ public class CommentServiceImpl implements CommentService {
         log.info("Создание отзыва пользователем {} для вещи {}", userId, itemId);
         User author = userRepository.findById(userId).orElse(null);
         if (author == null) {
-            log.error(AUTHOR_NOT_FOUND_MESSAGE);
-            throw new NotFoundException(AUTHOR_NOT_FOUND_MESSAGE);
+            log.error("Не найден создатель отзыва по идентификатору {}!", userId);
+            throw new NotFoundException(String.format("Не найден создатель отзыва по идентификатору %d!", userId));
         }
         Item item = itemRepository.findById(itemId).orElse(null);
         if (item == null) {
-            log.error(ITEM_NOT_FOUND_MESSAGE);
-            throw new NotFoundException(ITEM_NOT_FOUND_MESSAGE);
+            log.error("Не найдена вещь {} для отзыва!", itemId);
+            throw new NotFoundException(String.format("Не найдена вещь %d для отзыва!", itemId));
         }
         List<Booking> bookingList = bookingRepository.findAllByItemAndBookerAndStatusAndEndIsBefore(item, author, BookingStatus.APPROVED, LocalDateTime.now());
         if (bookingList.isEmpty()) {
-            log.error(BOOKING_NOT_FOUND_MESSAGE);
-            throw new ValidationException(BOOKING_NOT_FOUND_MESSAGE);
+            log.error("Не найдено подтверждение использование вещи {} пользователем {}!", itemId, userId);
+            throw new ValidationException(String.format("Не найдено подтверждение использование вещи %d пользователем %d!", itemId, userId));
         }
         commentDto.setCreated(LocalDateTime.now());
         Comment comment = commentMapper.fromDto(commentDto, item, author);

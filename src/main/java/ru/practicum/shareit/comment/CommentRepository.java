@@ -10,8 +10,7 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     List<Comment> getAllByItemOrderByCreatedDesc(Item item);
 
-    @Query("select c" +
-            " from Comment c" +
-            " where c.item.owner = ?1")
+    @Query(" from Comment c" +
+            " where c.item.owner = :owner")
     List<Comment> getAllByOwner(User owner);
 }

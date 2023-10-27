@@ -36,9 +36,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    private static final String OWNER_NOT_FOUND_MESSAGE = "Не найден владелец вещи!";
-    private static final String CHANGE_USER_MESSAGE = "Нельзя редактировать владельца вещи, вещь может быть отредактирована только её владельцем!";
-    private static final String CHANGE_REQUEST_MESSAGE = "Нельзя редактировать запрос на создание вещи!";
     private final ItemMapper itemMapper;
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
@@ -53,8 +50,8 @@ public class ItemServiceImpl implements ItemService {
         log.info("Добавление вещи");
         User owner = userRepository.findById(userId).orElse(null);
         if (owner == null) {
-            log.error(OWNER_NOT_FOUND_MESSAGE);
-            throw new NotFoundException(OWNER_NOT_FOUND_MESSAGE);
+            log.error("Не найден владелец с идентификатором {} для добавления вещи!", userId);
+            throw new NotFoundException(String.format("Не найден владелец с идентификатором %d для добавления вещи!", userId));
         }
         Request request = itemDto.getRequestId() != null
                 ? requestRepository.findById(itemDto.getRequestId()).orElse(null)
@@ -72,12 +69,12 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException(String.format("Вещь с идентификатором %d не найдена!", itemId));
         }
         if (!Objects.equals(userId, item.getOwner().getId())) {
-            log.error(CHANGE_USER_MESSAGE);
-            throw new ForbiddenException(CHANGE_USER_MESSAGE);
+            log.error("Попытка изменить владельца вещи {} c {} на {}!", itemId, item.getOwner().getId(), userId);
+            throw new ForbiddenException(String.format("Попытка изменить владельца вещи %d c %d на %d!", itemId, item.getOwner().getId(), userId));
         }
         if (itemDto.getRequestId() != null && (item.getRequest() == null || !Objects.equals(itemDto.getRequestId(), item.getRequest().getId()))) {
-            log.error(CHANGE_REQUEST_MESSAGE);
-            throw new ValidationException(CHANGE_REQUEST_MESSAGE);
+            log.error("Попытка изменить запрос на создание вещи {} на {}!", itemId, itemDto.getRequestId());
+            throw new ValidationException(String.format("Попытка изменить запрос на создание вещи %d на %d!", itemId, itemDto.getRequestId()));
         }
         if (!Strings.isBlank(itemDto.getName()))
             item.setName(itemDto.getName());
@@ -99,12 +96,9 @@ public class ItemServiceImpl implements ItemService {
         List<CommentDto> comments = commentRepository.getAllByItemOrderByCreatedDesc(item).stream().map(commentMapper::toDto).collect(Collectors.toList());
         if (!Objects.equals(item.getOwner().getId(), userId))
             return itemMapper.toDtoWithBooking(item, comments);
-        List<Booking> bookingList = bookingRepository.findAllByItemOrderByStartDesc(item);
         LocalDateTime now = LocalDateTime.now();
-        Booking nextBooking = bookingList.stream()
-                .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED).min(Comparator.comparing(Booking::getStart)).orElse(null);
-        Booking lastBooking = bookingList.stream()
-                .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isBefore(now) && x.getStatus() == BookingStatus.APPROVED).max(Comparator.comparing(Booking::getEnd)).orElse(null);
+        Booking nextBooking = bookingRepository.findFirstByItemAndStatusAndStartIsAfterOrderByStart(item, BookingStatus.APPROVED, now);
+        Booking lastBooking = bookingRepository.findFirstByItemAndStatusAndStartIsBeforeOrderByEndDesc(item, BookingStatus.APPROVED, now);
         return itemMapper.toDtoWithBooking(item,
                 nextBooking != null ? bookingMapper.toInDto(nextBooking) : null,
                 lastBooking != null ? bookingMapper.toInDto(lastBooking) : null,
@@ -113,21 +107,22 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllByUserId(Integer userId) {
+        log.info("Поиск вещей по пользователю с идентификатором {} - краткое описание", userId);
         User owner = userRepository.findById(userId).orElse(null);
         if (owner == null) {
-            log.error(OWNER_NOT_FOUND_MESSAGE);
-            throw new NotFoundException(OWNER_NOT_FOUND_MESSAGE);
+            log.error("Не найден пользователь {} для поиска вещей!", userId);
+            throw new NotFoundException(String.format("Не найден пользователь %d для поиска вещей!", userId));
         }
         return itemRepository.findAllByOwner(owner).stream().map(itemMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDtoExtended> getAllByUserExtended(Integer userId) {
-        log.info("Поиск вещей по пользователю с идентификатором {}", userId);
+        log.info("Поиск вещей по пользователю с идентификатором {} - полное описание", userId);
         User owner = userRepository.findById(userId).orElse(null);
         if (owner == null) {
-            log.error(OWNER_NOT_FOUND_MESSAGE);
-            throw new NotFoundException(OWNER_NOT_FOUND_MESSAGE);
+            log.error("Не найден пользователь {} для поиска вещей!", userId);
+            throw new NotFoundException(String.format("Не найден пользователь %d для поиска вещей!", userId));
         }
         List<Item> itemList = itemRepository.findAllByOwner(owner);
         List<Booking> bookingList = bookingRepository.findAllByItemOwner(owner);

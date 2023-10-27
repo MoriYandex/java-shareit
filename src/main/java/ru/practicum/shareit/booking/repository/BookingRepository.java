@@ -19,44 +19,41 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findAllByBookerAndStartIsAfterOrderByStartDesc(User booker, LocalDateTime end);
 
-    List<Booking> findAllByBookerAndStatusOrderByStartDesc(User booker, BookingStatus state);
+    List<Booking> findAllByBookerAndStatusOrderByStartDesc(User booker, BookingStatus status);
 
-    List<Booking> findAllByItemOrderByStartDesc(Item item);
+    Booking findFirstByItemAndStatusAndStartIsAfterOrderByStart(Item item, BookingStatus status, LocalDateTime now);
+
+    Booking findFirstByItemAndStatusAndStartIsBeforeOrderByEndDesc(Item item, BookingStatus approved, LocalDateTime now);
 
     List<Booking> findAllByItemAndBookerAndStatusAndEndIsBefore(Item item, User author, BookingStatus approved, LocalDateTime now);
 
-    @Query("select b" +
-            " from Booking b" +
-            " where b.item.owner = ?1" +
+    @Query(" from Booking b" +
+            " where b.item.owner = :owner" +
             " order by b.start desc")
     List<Booking> findAllByItemOwner(User owner);
 
-    @Query("select b" +
-            " from Booking b" +
-            " where b.item.owner = ?1" +
-            " and b.start < ?2" +
-            " and b.end > ?2" +
+    @Query(" from Booking b" +
+            " where b.item.owner = :owner" +
+            " and b.start < :now" +
+            " and b.end > :now" +
             " order by b.start desc")
     List<Booking> findAllByItemOwnerCurrent(User owner, LocalDateTime now);
 
-    @Query("select b" +
-            " from Booking b" +
-            " where b.item.owner = ?1" +
-            " and b.end < ?2" +
+    @Query(" from Booking b" +
+            " where b.item.owner = :owner" +
+            " and b.end < :now" +
             " order by b.start desc")
     List<Booking> findAllByItemOwnerPast(User owner, LocalDateTime now);
 
-    @Query("select b" +
-            " from Booking b" +
-            " where b.item.owner = ?1" +
-            " and b.start > ?2" +
+    @Query(" from Booking b" +
+            " where b.item.owner = :owner" +
+            " and b.start > :now" +
             " order by b.start desc")
     List<Booking> findAllByItemOwnerFuture(User owner, LocalDateTime now);
 
-    @Query("select b" +
-            " from Booking b" +
-            " where b.item.owner = ?1" +
-            " and b.status = ?2" +
+    @Query(" from Booking b" +
+            " where b.item.owner = :owner" +
+            " and b.status = :status" +
             " order by b.start desc")
     List<Booking> findAllByItemOwnerByStatus(User owner, BookingStatus status);
 }
