@@ -657,6 +657,7 @@ class ShareItTests {
         List<User> users = userQuery.getResultList();
         User userToRequest = users.get(0);
         Request request = new Request(null, "description", userToRequest, null);
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.add(requestMapper.toInDto(request), 1000));
         requestService.add(requestMapper.toInDto(request), userToRequest.getId());
         TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
         List<Request> requests = requestQuery.getResultList();
