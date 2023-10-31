@@ -679,6 +679,8 @@ class ShareItTests {
         List<Request> requests = requestQuery.getResultList();
         Assertions.assertEquals(requests.size(), 1);
         Request newRequest = requests.get(0);
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getById(1000, userToRequest.getId()));
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getById(newRequest.getId(), 1000));
         RequestDtoExtended gotRequest = requestService.getById(newRequest.getId(), userToRequest.getId());
         Assertions.assertTrue(Objects.equals(newRequest.getDescription(), gotRequest.getDescription())
                 && Objects.equals(gotRequest.getRequestorId(), newRequest.getRequestor().getId()));
