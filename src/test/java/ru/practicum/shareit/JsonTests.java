@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingDtoExtended;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoExtended;
+import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.dto.RequestDtoExtended;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -29,6 +30,16 @@ public class JsonTests {
     private JacksonTester<ItemDtoExtended> itemDtoExtendedJacksonTester;
     @Autowired
     private JacksonTester<RequestDtoExtended> requestDtoExtendedJacksonTester;
+    @Autowired
+    private JacksonTester<BookingDto> bookingDtoJacksonTester;
+    @Autowired
+    private JacksonTester<ItemDto> itemDtoJacksonTester;
+    @Autowired
+    JacksonTester<RequestDto> requestDtoJacksonTester;
+    @Autowired
+    JacksonTester<CommentDto> commentDtoJacksonTester;
+    @Autowired
+    JacksonTester<UserDto> userDtoJacksonTester;
 
     private final LocalDateTime bookingStart = LocalDateTime.of(2023, 1, 1, 1, 1, 1);
     private final LocalDateTime bookingEnd = LocalDateTime.of(2024, 2, 2, 2, 2, 2);
@@ -98,4 +109,68 @@ public class JsonTests {
         Assertions.assertEquals(newRequestDto.getCreated(), requestDtoExtended.getCreated());
         Assertions.assertEquals(newRequestDto.getItems().get(0).getId(), requestDtoExtended.getItems().get(0).getId());
     }
+
+    @Test
+    void bookingDtoTest() throws IOException {
+        BookingDto bookingDto = new BookingDto(1, bookingStart, bookingEnd, 1, 1, BookingStatus.APPROVED);
+        JsonContent<BookingDto> jsonContent = bookingDtoJacksonTester.write(bookingDto);
+        assertThat(jsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
+        assertThat(jsonContent).extractingJsonPathNumberValue("$.itemId").isEqualTo(1);
+        assertThat(jsonContent).extractingJsonPathStringValue("$.start").isEqualTo("2023-01-01T01:01:01");
+        BookingDto newBookingDto = bookingDtoJacksonTester.parseObject(jsonContent.getJson());
+        Assertions.assertEquals(newBookingDto.getId(), bookingDto.getId());
+        Assertions.assertEquals(newBookingDto.getItemId(), bookingDto.getItemId());
+        Assertions.assertEquals(newBookingDto.getStart(), bookingDto.getStart());
+    }
+
+    @Test
+    void itemDtoTest() throws IOException {
+        ItemDto itemDto = new ItemDto(1, "name1", "description1", true, 1, 1);
+        JsonContent<ItemDto> jsonContent = itemDtoJacksonTester.write(itemDto);
+        assertThat(jsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
+        assertThat(jsonContent).extractingJsonPathStringValue("$.name").isEqualTo("name1");
+        assertThat(jsonContent).extractingJsonPathBooleanValue("$.available").isEqualTo(true);
+        ItemDto newItemDto = itemDtoJacksonTester.parseObject(jsonContent.getJson());
+        Assertions.assertEquals(newItemDto.getId(), itemDto.getId());
+        Assertions.assertEquals(newItemDto.getName(), itemDto.getName());
+        Assertions.assertEquals(newItemDto.getAvailable(), itemDto.getAvailable());
+    }
+
+    @Test
+    void requestDtoTest() throws IOException {
+        RequestDto requestDto = new RequestDto(1, "description1", 1, bookingStart);
+        JsonContent<RequestDto> jsonContent = requestDtoJacksonTester.write(requestDto);
+        assertThat(jsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
+        assertThat(jsonContent).extractingJsonPathStringValue("$.description").isEqualTo("description1");
+        assertThat(jsonContent).extractingJsonPathStringValue("$.created").isEqualTo("2023-01-01T01:01:01");
+        RequestDto newRequestDto = requestDtoJacksonTester.parseObject(jsonContent.getJson());
+        Assertions.assertEquals(newRequestDto.getId(), requestDto.getId());
+        Assertions.assertEquals(newRequestDto.getDescription(), requestDto.getDescription());
+        Assertions.assertEquals(newRequestDto.getCreated(), requestDto.getCreated());
+    }
+
+    @Test
+    void commentDtoTest() throws IOException {
+        CommentDto commentDto = new CommentDto(1, "text1", 1, 1, "uname1", bookingStart);
+        JsonContent<CommentDto> jsonContent = commentDtoJacksonTester.write(commentDto);
+        assertThat(jsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
+        assertThat(jsonContent).extractingJsonPathStringValue("$.text").isEqualTo("text1");
+        assertThat(jsonContent).extractingJsonPathStringValue("$.created").isEqualTo("2023-01-01T01:01:01");
+        CommentDto newCommentDto = commentDtoJacksonTester.parseObject(jsonContent.getJson());
+        Assertions.assertEquals(newCommentDto.getId(), commentDto.getId());
+        Assertions.assertEquals(newCommentDto.getText(), commentDto.getText());
+        Assertions.assertEquals(newCommentDto.getCreated(), commentDto.getCreated());
+    }
+
+    @Test
+    void userDtoTest() throws Exception{
+        UserDto userDto = new UserDto(1, "name1", "user1@user.com");
+        JsonContent<UserDto> jsonContent = userDtoJacksonTester.write(userDto);
+        assertThat(jsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
+        assertThat(jsonContent).extractingJsonPathStringValue("$.name").isEqualTo("name1");
+        assertThat(jsonContent).extractingJsonPathStringValue("$.email").isEqualTo("user1@user.com");
+        UserDto newUserDto = userDtoJacksonTester.parseObject(jsonContent.getJson());
+        Assertions.assertEquals(newUserDto.getId(), userDto.getId());
+        Assertions.assertEquals(newUserDto.getName(), userDto.getName());
+        Assertions.assertEquals(newUserDto.getEmail(), userDto.getEmail());}
 }
