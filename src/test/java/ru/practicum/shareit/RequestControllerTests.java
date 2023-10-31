@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = RequestController.class)
 @AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class RequestControllerTest {
+public class RequestControllerTests {
     private final RequestMapper requestMapper = new RequestMapper();
     @MockBean
     RequestService requestService;
