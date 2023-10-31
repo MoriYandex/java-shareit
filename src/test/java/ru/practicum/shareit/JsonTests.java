@@ -163,7 +163,7 @@ public class JsonTests {
     }
 
     @Test
-    void userDtoTest() throws Exception{
+    void userDtoTest() throws Exception {
         UserDto userDto = new UserDto(1, "name1", "user1@user.com");
         JsonContent<UserDto> jsonContent = userDtoJacksonTester.write(userDto);
         assertThat(jsonContent).extractingJsonPathNumberValue("$.id").isEqualTo(1);
@@ -172,5 +172,6 @@ public class JsonTests {
         UserDto newUserDto = userDtoJacksonTester.parseObject(jsonContent.getJson());
         Assertions.assertEquals(newUserDto.getId(), userDto.getId());
         Assertions.assertEquals(newUserDto.getName(), userDto.getName());
-        Assertions.assertEquals(newUserDto.getEmail(), userDto.getEmail());}
+        Assertions.assertEquals(newUserDto.getEmail(), userDto.getEmail());
+    }
 }
