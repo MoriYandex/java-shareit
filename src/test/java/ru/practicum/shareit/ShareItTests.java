@@ -395,8 +395,8 @@ class ShareItTests {
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, Integer.class), item1.getId())
                         ? Optional.of(item1)
                         : Objects.equals(invocation.getArgument(0, Integer.class), item2.getId())
-                            ? Optional.of(item2)
-                            : Optional.empty());
+                        ? Optional.of(item2)
+                        : Optional.empty());
         Mockito.when(mockUserRepository.findById(Mockito.anyInt()))
                 .thenAnswer(invocation -> {
                     switch (invocation.getArgument(0, Integer.class)) {
@@ -771,7 +771,7 @@ class ShareItTests {
     }
 
     @Test
-    void itemServiceGetTest(){
+    void itemServiceGetTest() {
         User user1 = new User(null, "name1", "user1@user.com");
         User user2 = new User(null, "name2", "user2@user.com");
         userService.add(userMapper.toDto(user1));
@@ -800,6 +800,7 @@ class ShareItTests {
         ItemDtoExtended itemDtoExtended = itemService.get(items.get(0).getId(), users.get(0).getId());
         Assertions.assertEquals(itemDtoExtended.getDescription(), items.get(0).getDescription());
     }
+
     @Test
     void itemServiceGetAllByUserExtendedTest() {
         User user1 = new User(null, "name1", "user1@user.com");
