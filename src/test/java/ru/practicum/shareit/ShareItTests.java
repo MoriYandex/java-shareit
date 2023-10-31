@@ -574,4 +574,354 @@ class ShareItTests {
                 && Objects.equals(bookingDtoExtended1.getBooker().getId(), booking1.getBooker().getId()));
         Assertions.assertThrows(UnsupportedException.class, () -> bookingService.getAllForItems(1, "UNSUPPORTED_CLASS", 1, 1));
     }
+
+    @Test
+    void userServiceAddTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user1@user.com");
+        userService.add(userMapper.toDto(user1));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Assertions.assertEquals(users.size(), 1);
+        User newUser1 = users.get(0);
+        Assertions.assertTrue(Objects.equals(user1.getName(), newUser1.getName())
+                && Objects.equals(user1.getEmail(), newUser1.getEmail()));
+        Assertions.assertThrows(DataIntegrityViolationException.class, () -> userService.add(userMapper.toDto(user2)));
+    }
+
+    @Test
+    void userServiceUpdateTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        userService.add(userMapper.toDto(user1));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Assertions.assertEquals(users.size(), 1);
+        User newUser1 = users.get(0);
+        user1.setEmail("user1new@user.com");
+        userService.update(userMapper.toDto(user1), newUser1.getId());
+        TypedQuery<User> query1 = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users1 = query1.getResultList();
+        User gotUser = users1.get(0);
+        Assertions.assertTrue(Objects.equals(user1.getName(), gotUser.getName())
+                && Objects.equals(user1.getEmail(), gotUser.getEmail()));
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user2));
+        user1.setEmail("user2@user.com");
+        Assertions.assertThrows(DataIntegrityViolationException.class, () -> userService.update(userMapper.toDto(user1), gotUser.getId()));
+    }
+
+    @Test
+    void userServiceDeleteTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        userService.add(userMapper.toDto(user1));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Assertions.assertEquals(users.size(), 1);
+        userService.delete(users.get(0).getId());
+        users = query.getResultList();
+        Assertions.assertEquals(users.size(), 0);
+    }
+
+    @Test
+    void userServiceGetTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        userService.add(userMapper.toDto(user1));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Assertions.assertEquals(users.size(), 1);
+        UserDto userDto1 = userService.get(users.get(0).getId());
+        Assertions.assertTrue(Objects.equals(users.get(0).getId(), userDto1.getId())
+                && Objects.equals(users.get(0).getName(), userDto1.getName())
+                && Objects.equals(users.get(0).getEmail(), userDto1.getEmail()));
+    }
+
+    @Test
+    void userServiceGetAllTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Assertions.assertEquals(users.size(), 2);
+        List<UserDto> userDtoList = userService.getAll();
+        Assertions.assertEquals(userDtoList.size(), 2);
+        Assertions.assertTrue(Objects.equals(users.get(0).getId(), userDtoList.get(0).getId())
+                && Objects.equals(users.get(0).getName(), userDtoList.get(0).getName())
+                && Objects.equals(users.get(0).getEmail(), userDtoList.get(0).getEmail()));
+        Assertions.assertTrue(Objects.equals(users.get(1).getId(), userDtoList.get(1).getId())
+                && Objects.equals(users.get(1).getName(), userDtoList.get(1).getName())
+                && Objects.equals(users.get(1).getEmail(), userDtoList.get(1).getEmail()));
+    }
+
+    @Test
+    void requestServiceAddTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        userService.add(userMapper.toDto(user1));
+        TypedQuery<User> userQuery = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = userQuery.getResultList();
+        User userToRequest = users.get(0);
+        Request request = new Request(null, "description", userToRequest, null);
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.add(requestMapper.toInDto(request), 1000));
+        requestService.add(requestMapper.toInDto(request), userToRequest.getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Assertions.assertEquals(requests.size(), 1);
+        Request newRequest = requests.get(0);
+        Assertions.assertTrue(Objects.equals(newRequest.getDescription(), request.getDescription())
+                && Objects.equals(newRequest.getRequestor().getId(), request.getRequestor().getId()));
+    }
+
+    @Test
+    void requestServiceGetByIdTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        userService.add(userMapper.toDto(user1));
+        TypedQuery<User> userQuery = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = userQuery.getResultList();
+        User userToRequest = users.get(0);
+        Request request = new Request(null, "description", userToRequest, null);
+        requestService.add(requestMapper.toInDto(request), userToRequest.getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Assertions.assertEquals(requests.size(), 1);
+        Request newRequest = requests.get(0);
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getById(1000, userToRequest.getId()));
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getById(newRequest.getId(), 1000));
+        RequestDtoExtended gotRequest = requestService.getById(newRequest.getId(), userToRequest.getId());
+        Assertions.assertTrue(Objects.equals(newRequest.getDescription(), gotRequest.getDescription())
+                && Objects.equals(gotRequest.getRequestorId(), newRequest.getRequestor().getId()));
+    }
+
+    @Test
+    void requestServiceGetAllTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        Request request2 = new Request(null, "description1", users.get(1), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        requestService.add(requestMapper.toInDto(request2), users.get(1).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), requests.get(1));
+        Item item2 = new Item(null, "name2", "description2", true, users.get(1), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(1).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getAll(1000, 0, 10));
+        Assertions.assertThrows(ValidationException.class, () -> requestService.getAll(users.get(0).getId(), -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> requestService.getAll(users.get(0).getId(), 0, 0));
+        List<RequestDtoExtended> gotRequests1 = requestService.getAll(users.get(0).getId(), 0, 10);
+        Assertions.assertEquals(gotRequests1.size(), 1);
+        Assertions.assertEquals(gotRequests1.get(0).getItems().get(0).getName(), "name1");
+        List<RequestDtoExtended> gotRequests2 = requestService.getAll(users.get(1).getId(), 0, 10);
+        Assertions.assertEquals(gotRequests2.size(), 1);
+        Assertions.assertEquals(gotRequests2.get(0).getItems().get(0).getName(), "name2");
+    }
+
+    @Test
+    void requestServiceGetAllByUserIdTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        Request request2 = new Request(null, "description1", users.get(1), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        requestService.add(requestMapper.toInDto(request2), users.get(1).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), requests.get(1));
+        Item item2 = new Item(null, "name2", "description2", true, users.get(1), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(1).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getAllByUserId(1000));
+        List<RequestDtoExtended> gotRequests1 = requestService.getAllByUserId(users.get(0).getId());
+        Assertions.assertEquals(gotRequests1.size(), 1);
+        Assertions.assertEquals(gotRequests1.get(0).getItems().get(0).getName(), "name2");
+    }
+
+    @Test
+    void itemServiceAddTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        userService.add(userMapper.toDto(user1));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), null);
+        Item item2 = new Item(null, "name2", "description2", true, users.get(0), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(0).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> itemService.add(itemMapper.toDto(item2), 1000));
+        TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
+        List<Item> items = itemTypedQuery.getResultList();
+        Assertions.assertEquals(items.get(0).getDescription(), "description1");
+        Assertions.assertEquals(items.get(1).getDescription(), "description2");
+        Assertions.assertNull(items.get(0).getRequest());
+        Assertions.assertEquals(items.get(1).getRequest().getId(), requests.get(0).getId());
+        Assertions.assertEquals(items.get(0).getOwner().getName(), "name1");
+        Assertions.assertEquals(items.get(1).getOwner().getName(), "name1");
+    }
+
+    @Test
+    void itemServiceGetAllByUserExtendedTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), null);
+        Item item2 = new Item(null, "name2", "description2", true, users.get(0), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(0).getId());
+        TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
+        List<Item> items = itemTypedQuery.getResultList();
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
+        bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
+        bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
+        TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
+        List<Booking> bookings = bookingTypedQuery.getResultList();
+        bookingService.approve(bookings.get(0).getId(), true, users.get(0).getId());
+        bookingService.approve(bookings.get(1).getId(), true, users.get(0).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> itemService.getAllByUserExtended(1000, 0, 10));
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAllByUserExtended(users.get(0).getId(), -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAllByUserExtended(users.get(0).getId(), 0, 0));
+        List<ItemDtoExtended> allItems = itemService.getAllByUserExtended(users.get(0).getId(), 0, 10);
+        Assertions.assertEquals(allItems.size(), 2);
+        Assertions.assertEquals(allItems.get(0).getId(), items.get(0).getId());
+        Assertions.assertEquals(allItems.get(1).getId(), items.get(1).getId());
+        Assertions.assertEquals(allItems.get(0).getNextBooking().getBookerId(), users.get(1).getId());
+        Assertions.assertNull(allItems.get(1).getNextBooking());
+        Assertions.assertNull(allItems.get(0).getLastBooking());
+        Assertions.assertNull(allItems.get(1).getLastBooking());
+    }
+
+    @Test
+    void itemServiceGetAvailableByText() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), null);
+        Item item2 = new Item(null, "name2", "description2", true, users.get(0), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(0).getId());
+        TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
+        List<Item> items = itemTypedQuery.getResultList();
+        Assertions.assertEquals(items.size(), 2);
+        List<ItemDto> textItems = itemService.getAvailableByText("dESc", 0, 10);
+        Assertions.assertEquals(textItems.size(), 2);
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAvailableByText("qwerty", -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAvailableByText("qwerty", 0, 0));
+        textItems = itemService.getAvailableByText("sdec", 0, 10);
+        Assertions.assertEquals(textItems.size(), 0);
+        textItems = itemService.getAvailableByText("aMe1", 0, 10);
+        Assertions.assertEquals(textItems.size(), 1);
+    }
+
+    @Test
+    void bookingServiceGetAllForItemsTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), null);
+        Item item2 = new Item(null, "name2", "description2", true, users.get(0), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(0).getId());
+        TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
+        List<Item> items = itemTypedQuery.getResultList();
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
+        bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
+        bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
+        TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
+        List<Booking> bookings = bookingTypedQuery.getResultList();
+        bookingService.approve(bookings.get(0).getId(), false, users.get(0).getId());
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllForItems(users.get(1).getId(), "ALL", -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllForItems(users.get(1).getId(), "ALL", 0, 0));
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.getAllForItems(1000, "ALL", 0, 0));
+        List<BookingDtoExtended> testBookings = bookingService.getAllForItems(users.get(0).getId(), "ALL", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 2);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "FUTURE", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 2);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "CURRENT", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 0);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "PAST", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 0);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "WAITING", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 1);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "REJECTED", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 1);
+    }
+
+    @Test
+    void bookingServiceGetAllByUserIdTest() {
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), null);
+        Item item2 = new Item(null, "name2", "description2", true, users.get(0), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(0).getId());
+        TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
+        List<Item> items = itemTypedQuery.getResultList();
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
+        bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
+        bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
+        TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
+        List<Booking> bookings = bookingTypedQuery.getResultList();
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.approve(bookings.get(0).getId(), true, 1000));
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.approve(1000, true, users.get(0).getId()));
+        bookingService.approve(bookings.get(0).getId(), false, users.get(0).getId());
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.approve(bookings.get(0).getId(), false, users.get(0).getId()));
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllByUserId(users.get(1).getId(), "ALL", -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllByUserId(users.get(1).getId(), "ALL", 0, 0));
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.getAllByUserId(1000, "ALL", 0, 0));
+        List<BookingDtoExtended> testBookings = bookingService.getAllByUserId(users.get(1).getId(), "ALL", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 2);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "FUTURE", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 2);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "CURRENT", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 0);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "PAST", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 0);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "WAITING", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 1);
+        testBookings = bookingService.getAllForItems(users.get(0).getId(), "REJECTED", 0, 10);
+        Assertions.assertEquals(testBookings.size(), 1);
+    }
 }
