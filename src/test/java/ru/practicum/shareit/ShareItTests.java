@@ -747,6 +747,7 @@ class ShareItTests {
         Item item2 = new Item(null, "name2", "description2", true, users.get(0), requests.get(0));
         itemService.add(itemMapper.toDto(item1), users.get(0).getId());
         itemService.add(itemMapper.toDto(item2), users.get(0).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> itemService.add(itemMapper.toDto(item2), 1000));
         TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
         List<Item> items = itemTypedQuery.getResultList();
         Assertions.assertEquals(items.get(0).getDescription(), "description1");
@@ -783,6 +784,9 @@ class ShareItTests {
         List<Booking> bookings = bookingTypedQuery.getResultList();
         bookingService.approve(bookings.get(0).getId(), true, users.get(0).getId());
         bookingService.approve(bookings.get(1).getId(), true, users.get(0).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> itemService.getAllByUserExtended(1000, 0, 10));
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAllByUserExtended(users.get(0).getId(), -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAllByUserExtended(users.get(0).getId(), 0, 0));
         List<ItemDtoExtended> allItems = itemService.getAllByUserExtended(users.get(0).getId(), 0, 10);
         Assertions.assertEquals(allItems.size(), 2);
         Assertions.assertEquals(allItems.get(0).getId(), items.get(0).getId());
@@ -814,6 +818,8 @@ class ShareItTests {
         Assertions.assertEquals(items.size(), 2);
         List<ItemDto> textItems = itemService.getAvailableByText("dESc", 0, 10);
         Assertions.assertEquals(textItems.size(), 2);
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAvailableByText("qwerty", -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> itemService.getAvailableByText("qwerty", 0, 0));
         textItems = itemService.getAvailableByText("sdec", 0, 10);
         Assertions.assertEquals(textItems.size(), 0);
         textItems = itemService.getAvailableByText("aMe1", 0, 10);
