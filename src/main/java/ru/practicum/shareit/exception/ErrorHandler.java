@@ -24,13 +24,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse notFoundErrorHandler(final ConflictException e) {
-        log.error(e.getMessage());
-        return new ErrorResponse("Конфликт наименований", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse notFoundErrorHandler(final ForbiddenException e) {
         log.error(e.getMessage());
