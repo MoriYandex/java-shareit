@@ -771,6 +771,36 @@ class ShareItTests {
     }
 
     @Test
+    void itemServiceGetTest(){
+        User user1 = new User(null, "name1", "user1@user.com");
+        User user2 = new User(null, "name2", "user2@user.com");
+        userService.add(userMapper.toDto(user1));
+        userService.add(userMapper.toDto(user2));
+        TypedQuery<User> query = entityManager.createQuery(" from User u order by u.id", User.class);
+        List<User> users = query.getResultList();
+        Request request1 = new Request(null, "description1", users.get(0), null);
+        requestService.add(requestMapper.toInDto(request1), users.get(0).getId());
+        TypedQuery<Request> requestQuery = entityManager.createQuery(" from Request r order by r.id", Request.class);
+        List<Request> requests = requestQuery.getResultList();
+        Item item1 = new Item(null, "name1", "description1", true, users.get(0), null);
+        Item item2 = new Item(null, "name2", "description2", true, users.get(0), requests.get(0));
+        itemService.add(itemMapper.toDto(item1), users.get(0).getId());
+        itemService.add(itemMapper.toDto(item2), users.get(0).getId());
+        TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
+        List<Item> items = itemTypedQuery.getResultList();
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
+        bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
+        bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
+        TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
+        List<Booking> bookings = bookingTypedQuery.getResultList();
+        bookingService.approve(bookings.get(0).getId(), true, users.get(0).getId());
+        bookingService.approve(bookings.get(1).getId(), true, users.get(0).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> itemService.get(1000, users.get(0).getId()));
+        ItemDtoExtended itemDtoExtended = itemService.get(items.get(0).getId(), users.get(0).getId());
+        Assertions.assertEquals(itemDtoExtended.getDescription(), items.get(0).getDescription());
+    }
+    @Test
     void itemServiceGetAllByUserExtendedTest() {
         User user1 = new User(null, "name1", "user1@user.com");
         User user2 = new User(null, "name2", "user2@user.com");
