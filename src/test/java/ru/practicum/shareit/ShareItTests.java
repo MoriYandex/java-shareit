@@ -845,6 +845,9 @@ class ShareItTests {
         TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
         List<Booking> bookings = bookingTypedQuery.getResultList();
         bookingService.approve(bookings.get(0).getId(), false, users.get(0).getId());
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllForItems(users.get(1).getId(), "ALL", -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllForItems(users.get(1).getId(), "ALL", 0, 0));
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.getAllForItems(1000, "ALL", 0, 0));
         List<BookingDtoExtended> testBookings = bookingService.getAllForItems(users.get(0).getId(), "ALL", 0, 10);
         Assertions.assertEquals(testBookings.size(), 2);
         testBookings = bookingService.getAllForItems(users.get(0).getId(), "FUTURE", 0, 10);
@@ -884,6 +887,9 @@ class ShareItTests {
         TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
         List<Booking> bookings = bookingTypedQuery.getResultList();
         bookingService.approve(bookings.get(0).getId(), false, users.get(0).getId());
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllByUserId(users.get(1).getId(), "ALL", -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllByUserId(users.get(1).getId(), "ALL", 0, 0));
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.getAllByUserId(1000, "ALL", 0, 0));
         List<BookingDtoExtended> testBookings = bookingService.getAllByUserId(users.get(1).getId(), "ALL", 0, 10);
         Assertions.assertEquals(testBookings.size(), 2);
         testBookings = bookingService.getAllForItems(users.get(0).getId(), "FUTURE", 0, 10);
