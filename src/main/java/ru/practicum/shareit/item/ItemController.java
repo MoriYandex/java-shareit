@@ -2,7 +2,10 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.service.CommentService;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoExtended;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -13,6 +16,7 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
+    private final CommentService commentService;
 
     @PostMapping()
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") Integer userId, @Valid @RequestBody ItemDto itemDto) {
@@ -25,18 +29,23 @@ public class ItemController {
         return itemService.update(itemDto, userId, itemId);
     }
 
-    @GetMapping(path = "{itemId}")
-    public ItemDto get(@PathVariable(name = "itemId") Integer itemId) {
-        return itemService.get(itemId);
+    @GetMapping(path = "/{itemId}")
+    public ItemDtoExtended get(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable(name = "itemId") Integer itemId) {
+        return itemService.get(itemId, userId);
     }
 
     @GetMapping()
-    public List<ItemDto> getAllByUserId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
-        return itemService.getAllByUserId(userId);
+    public List<ItemDtoExtended> getAllByUserId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+        return itemService.getAllByUserExtended(userId);
     }
 
     @GetMapping(path = "/search")
     public List<ItemDto> getAvailableByText(@RequestParam(name = "text") String text) {
         return itemService.getAvailableByText(text);
+    }
+
+    @PostMapping(path = "/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable(name = "itemId") Integer itemId, @RequestBody @Valid CommentDto commentDto) {
+        return commentService.add(commentDto, itemId, userId);
     }
 }
