@@ -385,14 +385,18 @@ class ShareItTests {
         User user1 = new User(1, "name1", "user1@user.com");
         User user2 = new User(2, "name2", "user2@user.com");
         Item item1 = new Item(1, "name", "description", true, user1, null);
+        Item item2 = new Item(2, "name", "description", false, user1, null);
         Booking booking1 = new Booking(1, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1), item1, user2, BookingStatus.WAITING);
         Booking booking2 = new Booking(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1), item1, user2, BookingStatus.WAITING);
         Booking booking3 = new Booking(1, null, null, item1, user2, BookingStatus.WAITING);
         Booking booking4 = new Booking(1, null, null, item1, user1, BookingStatus.WAITING);
+        Booking booking5 = new Booking(1, null, null, item2, user1, BookingStatus.WAITING);
         Mockito.when(mockItemRepository.findById(Mockito.anyInt()))
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, Integer.class), item1.getId())
                         ? Optional.of(item1)
-                        : Optional.empty());
+                        : Objects.equals(invocation.getArgument(0, Integer.class), item2.getId())
+                            ? Optional.of(item2)
+                            : Optional.empty());
         Mockito.when(mockUserRepository.findById(Mockito.anyInt()))
                 .thenAnswer(invocation -> {
                     switch (invocation.getArgument(0, Integer.class)) {
@@ -474,6 +478,7 @@ class ShareItTests {
         Assertions.assertThrows(NotFoundException.class, () -> bookingService.add(bookingMapper.toInDto(booking2), 1));
         Assertions.assertThrows(NotFoundException.class, () -> bookingService.add(bookingMapper.toInDto(booking3), 1));
         Assertions.assertThrows(NotFoundException.class, () -> bookingService.add(bookingMapper.toInDto(booking4), 1));
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.add(bookingMapper.toInDto(booking5), 1));
         bookingDtoExtended1 = bookingService.get(1, 2);
         Assertions.assertTrue(Objects.equals(bookingDtoExtended1.getId(), booking1.getId())
                 && Objects.equals(bookingDtoExtended1.getStatus(), booking1.getStatus())
