@@ -899,7 +899,10 @@ class ShareItTests {
         bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
         TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
         List<Booking> bookings = bookingTypedQuery.getResultList();
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.approve(bookings.get(0).getId(), true, 1000));
+        Assertions.assertThrows(NotFoundException.class, () -> bookingService.approve(1000, true, users.get(0).getId()));
         bookingService.approve(bookings.get(0).getId(), false, users.get(0).getId());
+        Assertions.assertThrows(ValidationException.class, () -> bookingService.approve(bookings.get(0).getId(), false, users.get(0).getId()));
         Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllByUserId(users.get(1).getId(), "ALL", -1, 10));
         Assertions.assertThrows(ValidationException.class, () -> bookingService.getAllByUserId(users.get(1).getId(), "ALL", 0, 0));
         Assertions.assertThrows(NotFoundException.class, () -> bookingService.getAllByUserId(1000, "ALL", 0, 0));
