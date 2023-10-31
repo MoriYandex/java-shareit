@@ -702,6 +702,9 @@ class ShareItTests {
         Item item2 = new Item(null, "name2", "description2", true, users.get(1), requests.get(0));
         itemService.add(itemMapper.toDto(item1), users.get(0).getId());
         itemService.add(itemMapper.toDto(item2), users.get(1).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getAll(1000, 0, 10));
+        Assertions.assertThrows(ValidationException.class, () -> requestService.getAll(users.get(0).getId(), -1, 10));
+        Assertions.assertThrows(ValidationException.class, () -> requestService.getAll(users.get(0).getId(), 0, 0));
         List<RequestDtoExtended> gotRequests1 = requestService.getAll(users.get(0).getId(), 0, 10);
         Assertions.assertEquals(gotRequests1.size(), 1);
         Assertions.assertEquals(gotRequests1.get(0).getItems().get(0).getName(), "name1");
@@ -728,6 +731,7 @@ class ShareItTests {
         Item item2 = new Item(null, "name2", "description2", true, users.get(1), requests.get(0));
         itemService.add(itemMapper.toDto(item1), users.get(0).getId());
         itemService.add(itemMapper.toDto(item2), users.get(1).getId());
+        Assertions.assertThrows(NotFoundException.class, () -> requestService.getAllByUserId(1000));
         List<RequestDtoExtended> gotRequests1 = requestService.getAllByUserId(users.get(0).getId());
         Assertions.assertEquals(gotRequests1.size(), 1);
         Assertions.assertEquals(gotRequests1.get(0).getItems().get(0).getName(), "name2");
