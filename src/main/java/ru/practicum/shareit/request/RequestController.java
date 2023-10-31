@@ -3,11 +3,12 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.RequestDtoExtended;
 import ru.practicum.shareit.request.service.RequestService;
 
-/**
- * TODO Sprint add-item-requests.
- */
+import javax.validation.Valid;
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
@@ -15,22 +16,24 @@ public class RequestController {
     private final RequestService requestService;
 
     @PostMapping()
-    public RequestDto add(@RequestBody RequestDto requestDto) {
-        return requestService.add(requestDto);
-    }
-
-    @PatchMapping(path = "/{requestId}")
-    public RequestDto update(@PathVariable(name = "requestId") Integer requestId, @RequestBody RequestDto requestDto) {
-        return requestService.update(requestDto, requestId);
+    public RequestDto add(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestBody @Valid RequestDto requestDto) {
+        return requestService.add(requestDto, userId);
     }
 
     @GetMapping(path = "/{requestId}")
-    public RequestDto get(@PathVariable(name = "requestId") Integer requestId) {
-        return requestService.get(requestId);
+    public RequestDtoExtended getById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable(name = "requestId") Integer requestId) {
+        return requestService.getById(requestId, userId);
     }
 
-    @DeleteMapping(path = "/{requestId}")
-    public void delete(@PathVariable(name = "requestId") Integer requestId) {
-        requestService.delete(requestId);
+    @GetMapping()
+    public List<RequestDtoExtended> getAllByUserId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+        return requestService.getAllByUserId(userId);
+    }
+
+    @GetMapping(path = "/all")
+    public List<RequestDtoExtended> getAll(@RequestHeader("X-Sharer-User-Id") Integer userId,
+                                           @RequestParam(name = "from", required = false) Integer from,
+                                           @RequestParam(name = "size", required = false) Integer size) {
+        return requestService.getAll(userId, from, size);
     }
 }

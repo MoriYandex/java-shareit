@@ -35,13 +35,17 @@ public class ItemController {
     }
 
     @GetMapping()
-    public List<ItemDtoExtended> getAllByUserId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
-        return itemService.getAllByUserExtended(userId);
+    public List<ItemDtoExtended> getAllByUserId(@RequestHeader("X-Sharer-User-Id") Integer userId,
+                                                @RequestParam(name = "from", required = false) Integer from,
+                                                @RequestParam(name = "size", required = false) Integer size) {
+        return itemService.getAllByUserExtended(userId, from, size);
     }
 
     @GetMapping(path = "/search")
-    public List<ItemDto> getAvailableByText(@RequestParam(name = "text") String text) {
-        return itemService.getAvailableByText(text);
+    public List<ItemDto> getAvailableByText(@RequestParam(name = "text") String text,
+                                            @RequestParam(name = "from", required = false) Integer from,
+                                            @RequestParam(name = "size", required = false) Integer size) {
+        return itemService.getAvailableByText(text, from, size);
     }
 
     @PostMapping(path = "/{itemId}/comment")

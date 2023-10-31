@@ -12,11 +12,7 @@ public interface ItemService {
 
     ItemDtoExtended get(Integer itemId, Integer userId);
 
-    List<ItemDto> getAllByUserId(Integer userId);
+    List<ItemDtoExtended> getAllByUserExtended(Integer userId, Integer from, Integer size);
 
-    List<ItemDtoExtended> getAllByUserExtended(Integer userId);
-
-    List<ItemDto> getAvailableByText(String text);
-
-    void deleteItemRequests(Integer requestId);
+    List<ItemDto> getAvailableByText(String text, Integer from, Integer size);
 }

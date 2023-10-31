@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,4 +15,10 @@ public class UserDto {
     @Email(message = "Email пользователя должен соответствовать формату адреса электронной почты!")
     @NotBlank(message = "Email пользователя не должен быть пустым!")
     private String email;
+
+    public UserDto(@JsonProperty("id") Integer id, @JsonProperty("name") String name, @JsonProperty("email") String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
 }
