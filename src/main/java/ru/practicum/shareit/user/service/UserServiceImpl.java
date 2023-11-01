@@ -3,12 +3,13 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.request.service.RequestService;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -22,9 +23,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final BookingService bookingService;
-    private final RequestService requestService;
-    private final ItemService itemService;
+    private final ItemRepository itemRepository;
+    private final RequestRepository requestRepository;
+    private final BookingRepository bookingRepository;
     private final UserMapper userMapper;
 
     @Override
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(UserDto userDto, Integer userId) {
-        log.info("Редактирование пользователя с идентификатором {}", userDto.getId());
+        log.info("Редактирование пользователя с идентификатором {}", userId);
         User toUpdate = getById(userId);
         if (!Strings.isBlank(userDto.getEmail())) {
             toUpdate.setEmail(userDto.getEmail());
@@ -56,12 +57,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Integer userId) {
         log.info("Удаление пользователя с идентификатором {}", userId);
-        getById(userId);
-        if (!bookingService.getAllByUserId(userId, "ALL").isEmpty())
+        User user = getById(userId);
+        if (!bookingRepository.findAllByBooker(user, Pageable.unpaged()).isEmpty())
             throw new ValidationException(String.format("Пользователь с идентификатором %d имеет бронирования, удаление невозможно!", userId));
-        if (!requestService.getAllByUserId(userId).isEmpty())
+        if (!requestRepository.findAllByRequestorOrderByCreatedDesc(user).isEmpty())
             throw new ValidationException(String.format("Пользователь с идентификатором %d имеет запросы на создание вещи, удаление невозможно!", userId));
-        if (!itemService.getAllByUserId(userId).isEmpty())
+        if (!itemRepository.findAllByOwner(user, Pageable.unpaged()).isEmpty())
             throw new ValidationException(String.format("Пользователь с идентификатором %d имеет вещи, удаление невозможно!", userId));
         userRepository.deleteById(userId);
     }

@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.booking.dto.BookingInDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.Request;
@@ -23,11 +23,11 @@ public class ItemMapper {
                 .build();
     }
 
-    public ItemDtoExtended toDtoWithBooking(Item item, List<CommentDto> comments) {
-        return toDtoWithBooking(item, null, null, comments);
+    public ItemDtoExtended toDtoExtended(Item item, List<CommentDto> comments) {
+        return toDtoExtended(item, null, null, comments);
     }
 
-    public ItemDtoExtended toDtoWithBooking(Item item, BookingInDto nextBooking, BookingInDto lastBooking, List<CommentDto> comments) {
+    public ItemDtoExtended toDtoExtended(Item item, BookingDto nextBooking, BookingDto lastBooking, List<CommentDto> comments) {
         return ItemDtoExtended.builder()
                 .id(item.getId())
                 .name(item.getName())

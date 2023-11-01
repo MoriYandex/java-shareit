@@ -3,6 +3,9 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -95,40 +98,38 @@ public class ItemServiceImpl implements ItemService {
         }
         List<CommentDto> comments = commentRepository.getAllByItemOrderByCreatedDesc(item).stream().map(commentMapper::toDto).collect(Collectors.toList());
         if (!Objects.equals(item.getOwner().getId(), userId))
-            return itemMapper.toDtoWithBooking(item, comments);
+            return itemMapper.toDtoExtended(item, comments);
         LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = bookingRepository.findFirstByItemAndStatusAndStartIsAfterOrderByStart(item, BookingStatus.APPROVED, now);
         Booking lastBooking = bookingRepository.findFirstByItemAndStatusAndStartIsBeforeOrderByEndDesc(item, BookingStatus.APPROVED, now);
-        return itemMapper.toDtoWithBooking(item,
+        return itemMapper.toDtoExtended(item,
                 nextBooking != null ? bookingMapper.toInDto(nextBooking) : null,
                 lastBooking != null ? bookingMapper.toInDto(lastBooking) : null,
                 comments);
     }
 
     @Override
-    public List<ItemDto> getAllByUserId(Integer userId) {
-        log.info("Поиск вещей по пользователю с идентификатором {} - краткое описание", userId);
-        User owner = userRepository.findById(userId).orElse(null);
-        if (owner == null) {
-            log.error("Не найден пользователь {} для поиска вещей!", userId);
-            throw new NotFoundException(String.format("Не найден пользователь %d для поиска вещей!", userId));
-        }
-        return itemRepository.findAllByOwner(owner).stream().map(itemMapper::toDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ItemDtoExtended> getAllByUserExtended(Integer userId) {
+    public List<ItemDtoExtended> getAllByUserExtended(Integer userId, Integer from, Integer size) {
         log.info("Поиск вещей по пользователю с идентификатором {} - полное описание", userId);
         User owner = userRepository.findById(userId).orElse(null);
         if (owner == null) {
             log.error("Не найден пользователь {} для поиска вещей!", userId);
             throw new NotFoundException(String.format("Не найден пользователь %d для поиска вещей!", userId));
         }
-        List<Item> itemList = itemRepository.findAllByOwner(owner);
-        List<Booking> bookingList = bookingRepository.findAllByItemOwner(owner);
+        if (from != null && from < 0) {
+            log.error("Значение номера первого элемента должно быть неотрицательно! Текущее значение номера {}", from);
+            throw new ValidationException(String.format("\"Значение номера первого элемента должно быть неотрицательно! Текущее значение номера  %d", from));
+        }
+        if (size != null && size <= 0) {
+            log.error("Значение размера страницы должны быть положительно! Текущее значение размера {}", size);
+            throw new ValidationException(String.format("Значение размера страницы должны быть положительно! Текущее значение размера %d", size));
+        }
+        Pageable pageable = (from == null || size == null ? Pageable.unpaged() : PageRequest.of(from / size, size, Sort.by("id")));
+        List<Item> items = itemRepository.findAllByOwner(owner, pageable).toList();
+        List<Booking> bookingList = bookingRepository.findAllByItemInOrderByStartDesc(items);
         LocalDateTime now = LocalDateTime.now();
         List<Comment> commentList = commentRepository.getAllByOwner(owner);
-        return itemList.stream().map(item -> {
+        return items.stream().map(item -> {
             Booking nextBooking = bookingList.stream()
                     .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED).min(Comparator.comparing(Booking::getStart)).orElse(null);
             Booking lastBooking = bookingList.stream()
@@ -138,7 +139,7 @@ public class ItemServiceImpl implements ItemService {
                     .sorted(Comparator.comparing(Comment::getCreated).reversed())
                     .map(commentMapper::toDto)
                     .collect(Collectors.toList());
-            return itemMapper.toDtoWithBooking(item,
+            return itemMapper.toDtoExtended(item,
                     nextBooking != null ? bookingMapper.toInDto(nextBooking) : null,
                     lastBooking != null ? bookingMapper.toInDto(lastBooking) : null,
                     comments);
@@ -146,16 +147,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAvailableByText(String text) {
+    public List<ItemDto> getAvailableByText(String text, Integer from, Integer size) {
         log.info("Поиск вещей по описанию с текстом {}", text);
         if (Strings.isBlank(text))
             return new ArrayList<>();
-        return itemRepository.searchByText(true, text)
+        if (from != null && from < 0) {
+            log.error("Значение номера первого элемента должно быть неотрицательно! Текущее значение номера {}", from);
+            throw new ValidationException(String.format("\"Значение номера первого элемента должно быть неотрицательно! Текущее значение номера  %d", from));
+        }
+        if (size != null && size <= 0) {
+            log.error("Значение размера страницы должны быть положительно! Текущее значение размера {}", size);
+            throw new ValidationException(String.format("Значение размера страницы должны быть положительно! Текущее значение размера %d", size));
+        }
+        Pageable pageable = (from == null || size == null ? Pageable.unpaged() : PageRequest.of(from / size, size, Sort.by("id")));
+        return itemRepository.searchByText(true, text, pageable)
                 .stream().map(itemMapper::toDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public void deleteItemRequests(Integer requestId) {
-        requestRepository.deleteById(requestId);
     }
 }

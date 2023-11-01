@@ -8,6 +8,7 @@ import ru.practicum.shareit.request.Request;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -29,4 +30,14 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private Request request;
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Item && Objects.equals(((Item) obj).id, this.id);
+    }
 }
