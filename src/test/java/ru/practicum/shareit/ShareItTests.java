@@ -58,6 +58,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
+import static ru.practicum.shareit.booking.BookingStatus.WAITING;
 
 @Transactional
 @SpringBootTest
@@ -954,5 +955,56 @@ class ShareItTests {
         Assertions.assertEquals(testBookings.size(), 1);
         testBookings = bookingService.getAllForItems(users.get(0).getId(), "REJECTED", 0, 10);
         Assertions.assertEquals(testBookings.size(), 1);
+    }
+
+
+    @Test
+    void commentTest() {
+        Comment comment1 = new Comment(1, "text1", null, null, LocalDateTime.now());
+        Comment comment2 = new Comment(1, "text2", null, null, LocalDateTime.now());
+        Comment comment3 = new Comment(3, "text1", null, null, LocalDateTime.now());
+        Assertions.assertEquals(comment1, comment2);
+        Assertions.assertNotEquals(comment1, comment3);
+        Assertions.assertEquals(comment1.hashCode(), comment2.hashCode());
+    }
+
+    @Test
+    void bookingTest() {
+        Booking booking1 = new Booking(1, LocalDateTime.now(), LocalDateTime.now(), null, null, WAITING);
+        Booking booking2 = new Booking(1, LocalDateTime.now(), LocalDateTime.now(), null, null, WAITING);
+        Booking booking3 = new Booking(2, LocalDateTime.now(), LocalDateTime.now(), null, null, WAITING);
+        Assertions.assertEquals(booking1, booking2);
+        Assertions.assertNotEquals(booking1, booking3);
+        Assertions.assertEquals(booking1.hashCode(), booking2.hashCode());
+    }
+
+    @Test
+    void itemTest() {
+        Item item1 = new Item(1, "name1", "description1", true, null, null);
+        Item item2 = new Item(1, "name2", "description2", true, null, null);
+        Item item3 = new Item(2, "name1", "description1", true, null, null);
+        Assertions.assertEquals(item1, item2);
+        Assertions.assertNotEquals(item1, item3);
+        Assertions.assertEquals(item1.hashCode(), item2.hashCode());
+    }
+
+    @Test
+    void userTest() {
+        User user1 = new User(1, "name1", "user1@user.com");
+        User user2 = new User(1, "name2", "user1@user.com");
+        User user3 = new User(2, "name1", "user2@user.com");
+        Assertions.assertEquals(user1, user2);
+        Assertions.assertNotEquals(user1, user3);
+        Assertions.assertEquals(user1.hashCode(), user2.hashCode());
+    }
+
+    @Test
+    void requestTest() {
+        Request request1 = new Request(1, "description1", null, LocalDateTime.now());
+        Request request2 = new Request(1, "description2", null, LocalDateTime.now());
+        Request request3 = new Request(2, "description1", null, LocalDateTime.now());
+        Assertions.assertEquals(request1, request2);
+        Assertions.assertNotEquals(request1, request3);
+        Assertions.assertEquals(request1.hashCode(), request2.hashCode());
     }
 }
