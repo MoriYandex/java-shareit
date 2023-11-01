@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public void delete(Integer userId) {
         log.info("Удаление пользователя с идентификатором {}", userId);
         User user = getById(userId);
-        if (!bookingRepository.findAllByBookerOrderByStartDesc(user, Pageable.unpaged()).isEmpty())
+        if (!bookingRepository.findAllByBooker(user, Pageable.unpaged()).isEmpty())
             throw new ValidationException(String.format("Пользователь с идентификатором %d имеет бронирования, удаление невозможно!", userId));
         if (!requestRepository.findAllByRequestorOrderByCreatedDesc(user).isEmpty())
             throw new ValidationException(String.format("Пользователь с идентификатором %d имеет запросы на создание вещи, удаление невозможно!", userId));

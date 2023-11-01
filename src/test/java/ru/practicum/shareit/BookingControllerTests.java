@@ -1,20 +1,10 @@
 package ru.practicum.shareit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -37,29 +27,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = BookingController.class)
-@AutoConfigureMockMvc
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class BookingControllerTest {
+public class BookingControllerTests extends ControllerTests<BookingController> {
+    @Autowired
+    public BookingControllerTests(BookingController testController) {
+        super(testController);
+    }
+
     private final BookingMapper bookingMapper = new BookingMapper();
     private final ItemMapper itemMapper = new ItemMapper();
     private final UserMapper userMapper = new UserMapper();
     @MockBean
     BookingService bookingService;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final BookingController bookingController;
-    MockMvc mockMvc;
-
-    @BeforeAll
-    static void setDate() {
-        objectMapper.registerModule(new JavaTimeModule());
-    }
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(bookingController).build();
-    }
 
     @Test
     void addTest() throws Exception {

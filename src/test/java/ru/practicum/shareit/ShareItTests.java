@@ -130,7 +130,7 @@ class ShareItTests {
         Assertions.assertTrue(Objects.equals(userDto2.getId(), user2.getId())
                 && userDto2.getName().equals(user2.getName())
                 && userDto2.getEmail().equals(user2.getEmail()));
-        Mockito.when(mockBookingRepository.findAllByBookerOrderByStartDesc(Mockito.any(User.class), Mockito.any(Pageable.class)))
+        Mockito.when(mockBookingRepository.findAllByBooker(Mockito.any(User.class), Mockito.any(Pageable.class)))
                 .thenReturn(Page.empty());
         Mockito.when(mockRequestRepository.findAllByRequestorOrderByCreatedDesc(Mockito.any(User.class)))
                 .thenReturn(new ArrayList<>());
@@ -139,10 +139,10 @@ class ShareItTests {
         userService.delete(1);
         Mockito.verify(mockUserRepository, Mockito.times(1))
                 .deleteById(1);
-        Mockito.when(mockBookingRepository.findAllByBookerOrderByStartDesc(Mockito.any(User.class), Mockito.any(Pageable.class)))
+        Mockito.when(mockBookingRepository.findAllByBooker(Mockito.any(User.class), Mockito.any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(new Booking(1, LocalDateTime.now(), LocalDateTime.now(), null, null, APPROVED))));
         Assertions.assertThrows(ValidationException.class, () -> userService.delete(1));
-        Mockito.when(mockBookingRepository.findAllByBookerOrderByStartDesc(Mockito.any(User.class), Mockito.any(Pageable.class)))
+        Mockito.when(mockBookingRepository.findAllByBooker(Mockito.any(User.class), Mockito.any(Pageable.class)))
                 .thenReturn(Page.empty());
         Mockito.when(mockRequestRepository.findAllByRequestorOrderByCreatedDesc(Mockito.any(User.class)))
                 .thenReturn(List.of(new Request(1, "", null, LocalDateTime.now())));
@@ -412,30 +412,30 @@ class ShareItTests {
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, Integer.class), booking1.getId())
                         ? Optional.of(booking1)
                         : Optional.empty());
-        Mockito.when(mockBookingRepository.findAllByBookerOrderByStartDesc(Mockito.any(User.class), Mockito.any(Pageable.class)))
+        Mockito.when(mockBookingRepository.findAllByBooker(Mockito.any(User.class), Mockito.any(Pageable.class)))
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, User.class).getId(), user2.getId())
                         ? new PageImpl<>(List.of(booking1))
                         : Page.empty());
-        Mockito.when(mockBookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Mockito.any(User.class),
+        Mockito.when(mockBookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfter(Mockito.any(User.class),
                         Mockito.any(LocalDateTime.class),
                         Mockito.any(LocalDateTime.class),
                         Mockito.any(Pageable.class)))
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, User.class).getId(), user2.getId())
                         ? new PageImpl<>(List.of(booking1))
                         : Page.empty());
-        Mockito.when(mockBookingRepository.findAllByBookerAndEndIsBeforeOrderByStartDesc(Mockito.any(User.class),
+        Mockito.when(mockBookingRepository.findAllByBookerAndEndIsBefore(Mockito.any(User.class),
                         Mockito.any(LocalDateTime.class),
                         Mockito.any(Pageable.class)))
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, User.class).getId(), user2.getId())
                         ? new PageImpl<>(List.of(booking1))
                         : Page.empty());
-        Mockito.when(mockBookingRepository.findAllByBookerAndStartIsAfterOrderByStartDesc(Mockito.any(User.class),
+        Mockito.when(mockBookingRepository.findAllByBookerAndStartIsAfter(Mockito.any(User.class),
                         Mockito.any(LocalDateTime.class),
                         Mockito.any(Pageable.class)))
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, User.class).getId(), user2.getId())
                         ? new PageImpl<>(List.of(booking1))
                         : Page.empty());
-        Mockito.when(mockBookingRepository.findAllByBookerAndStatusOrderByStartDesc(Mockito.any(User.class),
+        Mockito.when(mockBookingRepository.findAllByBookerAndStatus(Mockito.any(User.class),
                         Mockito.any(BookingStatus.class),
                         Mockito.any(Pageable.class)))
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, User.class).getId(), user2.getId())

@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -24,4 +25,14 @@ public class Request {
     @JoinColumn(name = "requestor_id")
     private User requestor;
     private LocalDateTime created;
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Request && Objects.equals(((Request) obj).id, this.id);
+    }
 }

@@ -13,15 +13,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
-    Page<Booking> findAllByBookerOrderByStartDesc(User booker, Pageable pageable);
+    Page<Booking> findAllByBooker(User booker, Pageable pageable);
 
-    Page<Booking> findAllByBookerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(User booker, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<Booking> findAllByBookerAndStartIsBeforeAndEndIsAfter(User booker, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    Page<Booking> findAllByBookerAndEndIsBeforeOrderByStartDesc(User booker, LocalDateTime end, Pageable pageable);
+    Page<Booking> findAllByBookerAndEndIsBefore(User booker, LocalDateTime end, Pageable pageable);
 
-    Page<Booking> findAllByBookerAndStartIsAfterOrderByStartDesc(User booker, LocalDateTime end, Pageable pageable);
+    Page<Booking> findAllByBookerAndStartIsAfter(User booker, LocalDateTime end, Pageable pageable);
 
-    Page<Booking> findAllByBookerAndStatusOrderByStartDesc(User booker, BookingStatus status, Pageable pageable);
+    Page<Booking> findAllByBookerAndStatus(User booker, BookingStatus status, Pageable pageable);
 
     Booking findFirstByItemAndStatusAndStartIsAfterOrderByStart(Item item, BookingStatus status, LocalDateTime now);
 
@@ -32,32 +32,27 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByItemInOrderByStartDesc(List<Item> items);
 
     @Query(" from Booking b" +
-            " where b.item.owner = :owner" +
-            " order by b.start desc")
+            " where b.item.owner = :owner")
     Page<Booking> findAllByItemOwner(User owner, Pageable pageable);
 
     @Query(" from Booking b" +
             " where b.item.owner = :owner" +
             " and b.start < :now" +
-            " and b.end > :now" +
-            " order by b.start desc")
+            " and b.end > :now")
     Page<Booking> findAllByItemOwnerCurrent(User owner, LocalDateTime now, Pageable pageable);
 
     @Query(" from Booking b" +
             " where b.item.owner = :owner" +
-            " and b.end < :now" +
-            " order by b.start desc")
+            " and b.end < :now")
     Page<Booking> findAllByItemOwnerPast(User owner, LocalDateTime now, Pageable pageable);
 
     @Query(" from Booking b" +
             " where b.item.owner = :owner" +
-            " and b.start > :now" +
-            " order by b.start desc")
+            " and b.start > :now")
     Page<Booking> findAllByItemOwnerFuture(User owner, LocalDateTime now, Pageable pageable);
 
     @Query(" from Booking b" +
             " where b.item.owner = :owner" +
-            " and b.status = :status" +
-            " order by b.start desc")
+            " and b.status = :status")
     Page<Booking> findAllByItemOwnerByStatus(User owner, BookingStatus status, Pageable pageable);
 }

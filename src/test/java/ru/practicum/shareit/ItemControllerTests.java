@@ -1,20 +1,10 @@
 package ru.practicum.shareit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentMapper;
@@ -37,30 +27,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = ItemController.class)
-@AutoConfigureMockMvc
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class ItemControllerTest {
+public class ItemControllerTests extends ControllerTests<ItemController> {
+    @Autowired
+    public ItemControllerTests(ItemController testController) {
+        super(testController);
+    }
+
     private final ItemMapper itemMapper = new ItemMapper();
     private final CommentMapper commentMapper = new CommentMapper();
     @MockBean
     ItemService itemService;
     @MockBean
     CommentService commentService;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final ItemController itemController;
-    MockMvc mockMvc;
-
-    @BeforeAll
-    static void setDate() {
-        objectMapper.registerModule(new JavaTimeModule());
-    }
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(itemController).build();
-    }
 
     @Test
     void addTest() throws Exception {

@@ -120,7 +120,9 @@ public class BookingServiceImpl implements BookingService {
             log.error("Значение размера страницы должны быть положительно! Текущее значение размера {}", size);
             throw new ValidationException(String.format("Значение размера страницы должны быть положительно! Текущее значение размера %d", size));
         }
-        Pageable pageable = (from == null || size == null ? Pageable.unpaged() : PageRequest.of(from / size, size, Sort.by("start").descending()));
+        Pageable pageable = (from == null || size == null
+                ? PageRequest.of(0, Integer.MAX_VALUE, Sort.by("start").descending())
+                : PageRequest.of(from / size, size, Sort.by("start").descending()));
         BookingSearchData data = new BookingSearchData(booker, pageable);
         return userHandlerMap.get(bookingStatusDto).apply(data);
     }
@@ -172,7 +174,9 @@ public class BookingServiceImpl implements BookingService {
             log.error("Значение размера страницы должны быть положительно! Текущее значение размера {}", size);
             throw new ValidationException(String.format("Значение размера страницы должны быть положительно! Текущее значение размера %d", size));
         }
-        Pageable pageable = (from == null || size == null ? Pageable.unpaged() : PageRequest.of(from / size, size, Sort.by("start").descending()));
+        Pageable pageable = (from == null || size == null
+                ? PageRequest.of(0, Integer.MAX_VALUE, Sort.by("start").descending())
+                : PageRequest.of(from / size, size, Sort.by("start").descending()));
         BookingSearchData data = new BookingSearchData(owner, pageable);
         return itemHandlerMap.get(bookingStatusDto).apply(data);
     }
@@ -188,35 +192,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<BookingDtoExtended> handleAllByUser(BookingSearchData data) {
-        return bookingRepository.findAllByBookerOrderByStartDesc(data.user, data.pageable).stream().map(booking ->
+        return bookingRepository.findAllByBooker(data.user, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleCurrentByUser(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(data.user, now, now, data.pageable).stream().map(booking ->
+        return bookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfter(data.user, now, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handlePastByUser(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerAndEndIsBeforeOrderByStartDesc(data.user, now, data.pageable).stream().map(booking ->
+        return bookingRepository.findAllByBookerAndEndIsBefore(data.user, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleFutureByUser(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerAndStartIsAfterOrderByStartDesc(data.user, now, data.pageable).stream().map(booking ->
+        return bookingRepository.findAllByBookerAndStartIsAfter(data.user, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleWaitingByUser(BookingSearchData data) {
-        return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(data.user, BookingStatus.WAITING, data.pageable).stream().map(booking ->
+        return bookingRepository.findAllByBookerAndStatus(data.user, BookingStatus.WAITING, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleRejectedByUser(BookingSearchData data) {
-        return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(data.user, BookingStatus.REJECTED, data.pageable).stream().map(booking ->
+        return bookingRepository.findAllByBookerAndStatus(data.user, BookingStatus.REJECTED, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 

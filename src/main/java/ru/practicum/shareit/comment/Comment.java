@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -28,4 +29,14 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
     private LocalDateTime created;
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Comment && Objects.equals(((Comment) obj).id, this.id);
+    }
 }
