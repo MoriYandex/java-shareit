@@ -18,7 +18,6 @@ import ru.practicum.shareit.user.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -157,7 +156,7 @@ public class ItemControllerTests extends ControllerTests<ItemController> {
                             new User(userId, "uname1", "user@user@com"),
                             argument.getCreated()));
                 });
-        CommentDto commentDto = new CommentDto(1L, "text1", 1L, 1L, "uname1", LocalDateTime.now(ZoneId.of("Europe/Moscow")));
+        CommentDto commentDto = new CommentDto(1L, "text1", 1L, 1L, "uname1", LocalDateTime.now());
         mockMvc.perform(post("/items/{itemId}/comment", 1)
                         .content(objectMapper.writeValueAsString(commentDto))
                         .header("X-Sharer-User-Id", 1)

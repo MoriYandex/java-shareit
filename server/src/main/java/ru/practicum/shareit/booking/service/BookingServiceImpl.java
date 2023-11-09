@@ -25,7 +25,6 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -185,7 +184,7 @@ public class BookingServiceImpl implements BookingService {
     private void validateTime(BookingDto bookingDto) {
         LocalDateTime start = bookingDto.getStart();
         LocalDateTime end = bookingDto.getEnd();
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         if (start.isBefore(now) || end.isBefore(now) || !start.isBefore(end)) {
             log.error("Неверно заданы параметры времени для бронирования вещи {} пользователем {}", bookingDto.getItemId(), bookingDto.getBookerId());
             throw new ValidationException(String.format("Неверно заданы параметры времени для бронирования вещи %d пользователем %d", bookingDto.getItemId(), bookingDto.getBookerId()));
@@ -198,19 +197,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<BookingDtoExtended> handleCurrentByUser(BookingSearchData data) {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfter(data.user, now, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handlePastByUser(BookingSearchData data) {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByBookerAndEndIsBefore(data.user, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleFutureByUser(BookingSearchData data) {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByBookerAndStartIsAfter(data.user, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
@@ -231,19 +230,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<BookingDtoExtended> handleCurrentByItem(BookingSearchData data) {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByItemOwnerCurrent(data.user, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handlePastByItem(BookingSearchData data) {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByItemOwnerPast(data.user, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleFutureByItem(BookingSearchData data) {
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByItemOwnerFuture(data.user, now, data.pageable).stream().map(booking ->
                 bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
     }

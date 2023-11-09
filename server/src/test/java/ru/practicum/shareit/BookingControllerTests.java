@@ -18,7 +18,6 @@ import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -50,7 +49,7 @@ public class BookingControllerTests extends ControllerTests<BookingController> {
             return bookingMapper.toOutDto(new Booking(argument.getId(), argument.getStart(), argument.getEnd(),
                     item1, user2, argument.getStatus()), itemMapper.toDto(item1), userMapper.toDto(user2));
         });
-        Booking booking = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")),
+        Booking booking = new Booking(1L, LocalDateTime.now(), LocalDateTime.now(),
                 item1, user2, BookingStatus.WAITING);
         BookingDto bookingDto1 = bookingMapper.toInDto(booking);
         mockMvc.perform(post("/bookings")
@@ -69,7 +68,7 @@ public class BookingControllerTests extends ControllerTests<BookingController> {
     void approveTest() throws Exception {
         Item item1 = new Item(1L, "name1", "description1", true, new User(1L, "uname1", "user1@user.com"), null);
         User user2 = new User(2L, "name2", "user2@user.com");
-        Booking booking = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")),
+        Booking booking = new Booking(1L, LocalDateTime.now(), LocalDateTime.now(),
                 item1, user2, BookingStatus.WAITING);
         when(bookingService.approve(anyLong(), anyBoolean(), anyLong())).thenAnswer(invocation -> {
             Long bookingId = invocation.getArgument(0, Long.class);
@@ -94,7 +93,7 @@ public class BookingControllerTests extends ControllerTests<BookingController> {
     void getTest() throws Exception {
         Item item1 = new Item(1L, "name1", "description1", true, new User(1L, "uname1", "user1@user.com"), null);
         User user2 = new User(2L, "name2", "user2@user.com");
-        Booking booking = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")),
+        Booking booking = new Booking(1L, LocalDateTime.now(), LocalDateTime.now(),
                 item1, user2, BookingStatus.WAITING);
         when(bookingService.get(anyLong(), anyLong())).thenAnswer(invocation -> {
             Long bookingId = invocation.getArgument(0, Long.class);
@@ -118,7 +117,7 @@ public class BookingControllerTests extends ControllerTests<BookingController> {
     void getAllTest() throws Exception {
         Item item1 = new Item(1L, "name1", "description1", true, new User(1L, "uname1", "user1@user.com"), null);
         User user2 = new User(2L, "name2", "user2@user.com");
-        Booking booking = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")),
+        Booking booking = new Booking(1L, LocalDateTime.now(), LocalDateTime.now(),
                 item1, user2, BookingStatus.WAITING);
         when(bookingService.getAllByUserId(anyLong(), anyString(), anyInt(), anyInt())).thenAnswer(invocation -> List.of(bookingMapper.toOutDto(new Booking(booking.getId(), booking.getStart(), booking.getEnd(),
                 item1, user2, BookingStatus.APPROVED), itemMapper.toDto(item1), userMapper.toDto(user2))));
@@ -141,7 +140,7 @@ public class BookingControllerTests extends ControllerTests<BookingController> {
     void getAllForItemsTest() throws Exception {
         Item item1 = new Item(1L, "name1", "description1", true, new User(1L, "uname1", "user1@user.com"), null);
         User user2 = new User(2L, "name2", "user2@user.com");
-        Booking booking = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")),
+        Booking booking = new Booking(1L, LocalDateTime.now(), LocalDateTime.now(),
                 item1, user2, BookingStatus.WAITING);
         when(bookingService.getAllForItems(anyLong(), anyString(), anyInt(), anyInt())).thenAnswer(invocation -> List.of(bookingMapper.toOutDto(new Booking(booking.getId(), booking.getStart(), booking.getEnd(),
                 item1, user2, BookingStatus.APPROVED), itemMapper.toDto(item1), userMapper.toDto(user2))));

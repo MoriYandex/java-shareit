@@ -52,7 +52,6 @@ import ru.practicum.shareit.user.service.UserServiceImpl;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -140,12 +139,12 @@ class ShareItTests {
         Mockito.verify(mockUserRepository, Mockito.times(1))
                 .deleteById(1L);
         Mockito.when(mockBookingRepository.findAllByBooker(Mockito.any(User.class), Mockito.any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")), null, null, APPROVED))));
+                .thenReturn(new PageImpl<>(List.of(new Booking(1L, LocalDateTime.now(), LocalDateTime.now(), null, null, APPROVED))));
         Assertions.assertThrows(ValidationException.class, () -> userService.delete(1L));
         Mockito.when(mockBookingRepository.findAllByBooker(Mockito.any(User.class), Mockito.any(Pageable.class)))
                 .thenReturn(Page.empty());
         Mockito.when(mockRequestRepository.findAllByRequestorOrderByCreatedDesc(Mockito.any(User.class)))
-                .thenReturn(List.of(new Request(1L, "", null, LocalDateTime.now(ZoneId.of("Europe/Moscow")))));
+                .thenReturn(List.of(new Request(1L, "", null, LocalDateTime.now())));
         Assertions.assertThrows(ValidationException.class, () -> userService.delete(1L));
         Mockito.when(mockRequestRepository.findAllByRequestorOrderByCreatedDesc(Mockito.any(User.class)))
                 .thenReturn(new ArrayList<>());
@@ -180,7 +179,7 @@ class ShareItTests {
         Mockito.when(mockItemRepository.saveAndFlush(Mockito.any(Item.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0, Item.class));
         User user1 = new User(1L, "name1", "user1@user.com");
-        Request request1 = new Request(1L, "", null, LocalDateTime.now(ZoneId.of("Europe/Moscow")));
+        Request request1 = new Request(1L, "", null, LocalDateTime.now());
         Mockito.when(mockUserRepository.findById(Mockito.anyLong()))
                 .thenAnswer(invocation -> Objects.equals(invocation.getArgument(0, Long.class), 1L)
                         ? Optional.of(user1)
@@ -385,8 +384,8 @@ class ShareItTests {
         User user2 = new User(2L, "name2", "user2@user.com");
         Item item1 = new Item(1L, "name", "description", true, user1, null);
         Item item2 = new Item(2L, "name", "description", false, user1, null);
-        Booking booking1 = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusDays(1), item1, user2, BookingStatus.WAITING);
-        Booking booking2 = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusDays(1), item1, user2, BookingStatus.WAITING);
+        Booking booking1 = new Booking(1L, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1), item1, user2, BookingStatus.WAITING);
+        Booking booking2 = new Booking(1L, LocalDateTime.now(), LocalDateTime.now().plusDays(1), item1, user2, BookingStatus.WAITING);
         Booking booking3 = new Booking(1L, null, null, item1, user2, BookingStatus.WAITING);
         Booking booking4 = new Booking(1L, null, null, item1, user1, BookingStatus.WAITING);
         Booking booking5 = new Booking(1L, null, null, item2, user1, BookingStatus.WAITING);
@@ -786,8 +785,8 @@ class ShareItTests {
         itemService.add(itemMapper.toDto(item2), users.get(0).getId());
         TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
         List<Item> items = itemTypedQuery.getResultList();
-        Booking booking1 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(2), items.get(0), users.get(1), APPROVED);
-        Booking booking2 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(3), items.get(0), users.get(1), APPROVED);
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
         bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
         bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
         TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
@@ -817,8 +816,8 @@ class ShareItTests {
         itemService.add(itemMapper.toDto(item2), users.get(0).getId());
         TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
         List<Item> items = itemTypedQuery.getResultList();
-        Booking booking1 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(2), items.get(0), users.get(1), APPROVED);
-        Booking booking2 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(3), items.get(0), users.get(1), APPROVED);
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
         bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
         bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
         TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
@@ -885,8 +884,8 @@ class ShareItTests {
         itemService.add(itemMapper.toDto(item2), users.get(0).getId());
         TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
         List<Item> items = itemTypedQuery.getResultList();
-        Booking booking1 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(2), items.get(0), users.get(1), APPROVED);
-        Booking booking2 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(3), items.get(0), users.get(1), APPROVED);
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
         bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
         bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
         TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
@@ -927,8 +926,8 @@ class ShareItTests {
         itemService.add(itemMapper.toDto(item2), users.get(0).getId());
         TypedQuery<Item> itemTypedQuery = entityManager.createQuery(" from Item i order by i.id", Item.class);
         List<Item> items = itemTypedQuery.getResultList();
-        Booking booking1 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(2), items.get(0), users.get(1), APPROVED);
-        Booking booking2 = new Booking(null, LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(1), LocalDateTime.now(ZoneId.of("Europe/Moscow")).plusHours(3), items.get(0), users.get(1), APPROVED);
+        Booking booking1 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), items.get(0), users.get(1), APPROVED);
+        Booking booking2 = new Booking(null, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(3), items.get(0), users.get(1), APPROVED);
         bookingService.add(bookingMapper.toInDto(booking1), users.get(1).getId());
         bookingService.add(bookingMapper.toInDto(booking2), users.get(1).getId());
         TypedQuery<Booking> bookingTypedQuery = entityManager.createQuery(" from Booking b order by b.id", Booking.class);
@@ -957,9 +956,9 @@ class ShareItTests {
 
     @Test
     void commentTest() {
-        Comment comment1 = new Comment(1L, "text1", null, null, LocalDateTime.now(ZoneId.of("Europe/Moscow")));
-        Comment comment2 = new Comment(1L, "text2", null, null, LocalDateTime.now(ZoneId.of("Europe/Moscow")));
-        Comment comment3 = new Comment(3L, "text1", null, null, LocalDateTime.now(ZoneId.of("Europe/Moscow")));
+        Comment comment1 = new Comment(1L, "text1", null, null, LocalDateTime.now());
+        Comment comment2 = new Comment(1L, "text2", null, null, LocalDateTime.now());
+        Comment comment3 = new Comment(3L, "text1", null, null, LocalDateTime.now());
         Assertions.assertEquals(comment1, comment2);
         Assertions.assertNotEquals(comment1, comment3);
         Assertions.assertEquals(comment1.hashCode(), comment2.hashCode());
@@ -967,9 +966,9 @@ class ShareItTests {
 
     @Test
     void bookingTest() {
-        Booking booking1 = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")), null, null, WAITING);
-        Booking booking2 = new Booking(1L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")), null, null, WAITING);
-        Booking booking3 = new Booking(2L, LocalDateTime.now(ZoneId.of("Europe/Moscow")), LocalDateTime.now(ZoneId.of("Europe/Moscow")), null, null, WAITING);
+        Booking booking1 = new Booking(1L, LocalDateTime.now(), LocalDateTime.now(), null, null, WAITING);
+        Booking booking2 = new Booking(1L, LocalDateTime.now(), LocalDateTime.now(), null, null, WAITING);
+        Booking booking3 = new Booking(2L, LocalDateTime.now(), LocalDateTime.now(), null, null, WAITING);
         Assertions.assertEquals(booking1, booking2);
         Assertions.assertNotEquals(booking1, booking3);
         Assertions.assertEquals(booking1.hashCode(), booking2.hashCode());
@@ -997,9 +996,9 @@ class ShareItTests {
 
     @Test
     void requestTest() {
-        Request request1 = new Request(1L, "description1", null, LocalDateTime.now(ZoneId.of("Europe/Moscow")));
-        Request request2 = new Request(1L, "description2", null, LocalDateTime.now(ZoneId.of("Europe/Moscow")));
-        Request request3 = new Request(2L, "description1", null, LocalDateTime.now(ZoneId.of("Europe/Moscow")));
+        Request request1 = new Request(1L, "description1", null, LocalDateTime.now());
+        Request request2 = new Request(1L, "description2", null, LocalDateTime.now());
+        Request request3 = new Request(2L, "description1", null, LocalDateTime.now());
         Assertions.assertEquals(request1, request2);
         Assertions.assertNotEquals(request1, request3);
         Assertions.assertEquals(request1.hashCode(), request2.hashCode());

@@ -22,7 +22,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +45,7 @@ public class RequestServiceImpl implements RequestService {
             log.error("Не найден пользователь {} для создания запроса!", userId);
             throw new NotFoundException(String.format("Не найден пользователь %d для создания запроса!", userId));
         }
-        requestDto.setCreated(LocalDateTime.now(ZoneId.of("Europe/Moscow")));
+        requestDto.setCreated(LocalDateTime.now());
         return requestMapper.toInDto(requestRepository.saveAndFlush(requestMapper.fromDto(requestDto, requestor)));
     }
 

@@ -20,7 +20,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 @DataJpaTest
@@ -91,14 +90,14 @@ public class DataJpaTests {
         Assertions.assertEquals(bookings.size(), 2);
         Assertions.assertEquals(bookings.get(0).getId(), 3);
         Assertions.assertEquals(bookings.get(1).getId(), 1);
-        List<Booking> bookings2 = bookingRepository.findAllByItemOwnerFuture(user2, LocalDateTime.now(ZoneId.of("Europe/Moscow")), bookingPageable).toList();
+        List<Booking> bookings2 = bookingRepository.findAllByItemOwnerFuture(user2, LocalDateTime.now(), bookingPageable).toList();
         Assertions.assertEquals(bookings2.size(), 2);
         Assertions.assertEquals(bookings2.get(0).getId(), 4);
         Assertions.assertEquals(bookings2.get(1).getId(), 3);
-        List<Booking> bookings3 = bookingRepository.findAllByItemOwnerPast(user2, LocalDateTime.now(ZoneId.of("Europe/Moscow")), bookingPageable).toList();
+        List<Booking> bookings3 = bookingRepository.findAllByItemOwnerPast(user2, LocalDateTime.now(), bookingPageable).toList();
         Assertions.assertEquals(bookings3.size(), 1);
         Assertions.assertEquals(bookings3.get(0).getId(), 1);
-        List<Booking> bookings4 = bookingRepository.findAllByItemOwnerCurrent(user1, LocalDateTime.now(ZoneId.of("Europe/Moscow")), bookingPageable).toList();
+        List<Booking> bookings4 = bookingRepository.findAllByItemOwnerCurrent(user1, LocalDateTime.now(), bookingPageable).toList();
         Assertions.assertEquals(bookings4.size(), 1);
         Assertions.assertEquals(bookings4.get(0).getId(), 2);
         List<Booking> bookings5 = bookingRepository.findAllByItemOwner(user2, bookingPageable).toList();

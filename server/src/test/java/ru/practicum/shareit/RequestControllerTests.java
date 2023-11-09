@@ -14,7 +14,6 @@ import ru.practicum.shareit.user.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class RequestControllerTests extends ControllerTests<RequestController> {
             RequestDto argument = invocation.getArgument(0, RequestDto.class);
             return requestMapper.toInDto(new Request(1L, argument.getDescription(), new User(argument.getRequestorId(), "name1", "user1@user.com"), argument.getCreated()));
         });
-        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now(ZoneId.of("Europe/Moscow"))));
+        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now()));
         mockMvc.perform(post("/requests").content(objectMapper.writeValueAsString(requestDto1)).characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 1)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,9 +57,9 @@ public class RequestControllerTests extends ControllerTests<RequestController> {
         when(requestService.getById(anyLong(), anyLong())).thenAnswer(invocation -> {
             Long requestId = invocation.getArgument(0, Long.class);
             Long userId = invocation.getArgument(1, Long.class);
-            return requestMapper.toOutDto(new Request(requestId, "description1", new User(userId, "name1", "user1@user.com"), LocalDateTime.now(ZoneId.of("Europe/Moscow"))), new ArrayList<>());
+            return requestMapper.toOutDto(new Request(requestId, "description1", new User(userId, "name1", "user1@user.com"), LocalDateTime.now()), new ArrayList<>());
         });
-        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now(ZoneId.of("Europe/Moscow"))));
+        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now()));
         mockMvc.perform(get("/requests/{requestId}", 1).content(objectMapper.writeValueAsString(requestDto1)).characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 1)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -75,9 +74,9 @@ public class RequestControllerTests extends ControllerTests<RequestController> {
     void getAllByUserIdTest() throws Exception {
         when(requestService.getAllByUserId(anyLong())).thenAnswer(invocation -> {
             Long userId = invocation.getArgument(0, Long.class);
-            return List.of(requestMapper.toOutDto(new Request(1L, "description1", new User(userId, "name1", "user1@user.com"), LocalDateTime.now(ZoneId.of("Europe/Moscow"))), new ArrayList<>()));
+            return List.of(requestMapper.toOutDto(new Request(1L, "description1", new User(userId, "name1", "user1@user.com"), LocalDateTime.now()), new ArrayList<>()));
         });
-        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now(ZoneId.of("Europe/Moscow"))));
+        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now()));
         mockMvc.perform(get("/requests").characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", 1)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,9 +90,9 @@ public class RequestControllerTests extends ControllerTests<RequestController> {
     void getAllTest() throws Exception {
         when(requestService.getAll(anyLong(), anyInt(), anyInt())).thenAnswer(invocation -> {
             Long userId = invocation.getArgument(0, Long.class);
-            return List.of(requestMapper.toOutDto(new Request(1L, "description1", new User(userId, "name1", "user1@user.com"), LocalDateTime.now(ZoneId.of("Europe/Moscow"))), new ArrayList<>()));
+            return List.of(requestMapper.toOutDto(new Request(1L, "description1", new User(userId, "name1", "user1@user.com"), LocalDateTime.now()), new ArrayList<>()));
         });
-        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now(ZoneId.of("Europe/Moscow"))));
+        RequestDto requestDto1 = requestMapper.toInDto(new Request(1L, "description1", new User(1L, "name1", "user1@user.com"), LocalDateTime.now()));
         mockMvc.perform(get("/requests/all")
                         .param("from", String.valueOf(0))
                         .param("size", String.valueOf(10)).characterEncoding(StandardCharsets.UTF_8)

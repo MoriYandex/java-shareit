@@ -29,7 +29,6 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -100,7 +99,7 @@ public class ItemServiceImpl implements ItemService {
         List<CommentDto> comments = commentRepository.getAllByItemOrderByCreatedDesc(item).stream().map(commentMapper::toDto).collect(Collectors.toList());
         if (!Objects.equals(item.getOwner().getId(), userId))
             return itemMapper.toDtoExtended(item, comments);
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = bookingRepository.findFirstByItemAndStatusAndStartIsAfterOrderByStart(item, BookingStatus.APPROVED, now);
         Booking lastBooking = bookingRepository.findFirstByItemAndStatusAndStartIsBeforeOrderByEndDesc(item, BookingStatus.APPROVED, now);
         return itemMapper.toDtoExtended(item,
@@ -130,7 +129,7 @@ public class ItemServiceImpl implements ItemService {
                 : PageRequest.of(from / size, size, Sort.by("id")));
         List<Item> items = itemRepository.findAllByOwner(owner, pageable).toList();
         List<Booking> bookingList = bookingRepository.findAllByItemInOrderByStartDesc(items);
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/Moscow"));
+        LocalDateTime now = LocalDateTime.now();
         List<Comment> commentList = commentRepository.getAllByOwner(owner);
         return items.stream().map(item -> {
             Booking nextBooking = bookingList.stream()
