@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.client.BaseClient;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
@@ -28,6 +30,7 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAll(long userId, BookingState state, Integer from, Integer size) {
+        log.info("Get bookings with state {}, userId={}, from={}, size={}", state.name(), userId, from, size);
         Map<String, Object> parameters = Map.of(
                 "state", state.name(),
                 "from", from,
@@ -38,14 +41,17 @@ public class BookingClient extends BaseClient {
 
 
     public ResponseEntity<Object> add(long userId, BookItemRequestDto requestDto) {
+        log.info("Creating booking {}, userId={}", requestDto, userId);
         return post("", userId, requestDto);
     }
 
     public ResponseEntity<Object> get(long userId, Long bookingId) {
+        log.info("Get booking {}, userId={}", bookingId, userId);
         return get("/" + bookingId, userId);
     }
 
     public ResponseEntity<Object> getAllByOwnerId(long userId, BookingState state, Integer from, Integer size) {
+        log.info("Get bookings with state {} and owner by userId={}, from={}, size={}", state.name(), userId, from, size);
         Map<String, Object> parameters = Map.of(
                 "state", state.name(),
                 "from", from,
@@ -55,6 +61,7 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> approve(long userId, long bookingId, boolean approved) {
+        log.info("Approve booking with id={} to status={}", bookingId, approved);
         Map<String, Object> parameters = Map.of(
                 "approved", approved
         );

@@ -62,7 +62,9 @@ public class RequestServiceImpl implements RequestService {
             log.error("Не найден запрос по идентификатору {}", requestId);
             throw new NotFoundException(String.format("Не найден запрос по идентификатору %d!", requestId));
         }
-        List<ItemDto> items = itemRepository.findAllByRequest(request).stream().map(itemMapper::toDto).collect(Collectors.toList());
+        List<ItemDto> items = itemRepository.findAllByRequest(request)
+                .stream().map(itemMapper::toDto)
+                .collect(Collectors.toList());
         return requestMapper.toOutDto(request, items);
     }
 
