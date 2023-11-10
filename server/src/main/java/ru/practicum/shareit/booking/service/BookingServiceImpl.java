@@ -96,7 +96,8 @@ public class BookingServiceImpl implements BookingService {
             log.error("Не найдено бронирование по идентификатору {}", bookingId);
             throw new NotFoundException(String.format("Не найдено бронирование по идентификатору %d", bookingId));
         }
-        if (!Objects.equals(booking.getBooker().getId(), userId) && !Objects.equals(booking.getItem().getOwner().getId(), userId)) {
+        if (!Objects.equals(booking.getBooker().getId(), userId)
+                && !Objects.equals(booking.getItem().getOwner().getId(), userId)) {
             log.error("Вывод данных запрещён: пользователь с идентификатором {} не является автором бронирования либо владельцем вещи!", userId);
             throw new NotFoundException(String.format("Вывод данных запрещён: пользователь с идентификатором %d не является автором бронирования либо владельцем вещи!", userId));
         }
@@ -187,74 +188,112 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime now = LocalDateTime.now();
         if (start.isBefore(now) || end.isBefore(now) || !start.isBefore(end)) {
             log.error("Неверно заданы параметры времени для бронирования вещи {} пользователем {}", bookingDto.getItemId(), bookingDto.getBookerId());
-            throw new ValidationException(String.format("Неверно заданы параметры времени для бронирования вещи %d пользователем %d", bookingDto.getItemId(), bookingDto.getBookerId()));
+            throw new ValidationException(String.format("Неверно заданы параметры времени для бронирования вещи %d пользователем %d",
+                    bookingDto.getItemId(),
+                    bookingDto.getBookerId()));
         }
     }
 
     private List<BookingDtoExtended> handleAllByUser(BookingSearchData data) {
-        return bookingRepository.findAllByBooker(data.user, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByBooker(data.user, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleCurrentByUser(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfter(data.user, now, now, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByBookerAndStartIsBeforeAndEndIsAfter(data.user, now, now, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handlePastByUser(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerAndEndIsBefore(data.user, now, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByBookerAndEndIsBefore(data.user, now, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleFutureByUser(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerAndStartIsAfter(data.user, now, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByBookerAndStartIsAfter(data.user, now, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleWaitingByUser(BookingSearchData data) {
-        return bookingRepository.findAllByBookerAndStatus(data.user, BookingStatus.WAITING, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByBookerAndStatus(data.user, BookingStatus.WAITING, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleRejectedByUser(BookingSearchData data) {
-        return bookingRepository.findAllByBookerAndStatus(data.user, BookingStatus.REJECTED, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByBookerAndStatus(data.user, BookingStatus.REJECTED, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleAllByItem(BookingSearchData data) {
-        return bookingRepository.findAllByItemOwner(data.user, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByItemOwner(data.user, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleCurrentByItem(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByItemOwnerCurrent(data.user, now, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByItemOwnerCurrent(data.user, now, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handlePastByItem(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByItemOwnerPast(data.user, now, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByItemOwnerPast(data.user, now, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleFutureByItem(BookingSearchData data) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByItemOwnerFuture(data.user, now, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByItemOwnerFuture(data.user, now, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleWaitingByItem(BookingSearchData data) {
-        return bookingRepository.findAllByItemOwnerByStatus(data.user, BookingStatus.WAITING, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByItemOwnerByStatus(data.user, BookingStatus.WAITING, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     private List<BookingDtoExtended> handleRejectedByItem(BookingSearchData data) {
-        return bookingRepository.findAllByItemOwnerByStatus(data.user, BookingStatus.REJECTED, data.pageable).stream().map(booking ->
-                bookingMapper.toOutDto(booking, itemMapper.toDto(booking.getItem()), userMapper.toDto(booking.getBooker()))).collect(Collectors.toList());
+        return bookingRepository.findAllByItemOwnerByStatus(data.user, BookingStatus.REJECTED, data.pageable)
+                .stream().map(booking -> bookingMapper.toOutDto(booking,
+                        itemMapper.toDto(booking.getItem()),
+                        userMapper.toDto(booking.getBooker())))
+                .collect(Collectors.toList());
     }
 
     @AllArgsConstructor

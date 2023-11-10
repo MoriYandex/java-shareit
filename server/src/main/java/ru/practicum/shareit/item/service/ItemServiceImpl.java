@@ -132,12 +132,16 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
         List<Comment> commentList = commentRepository.getAllByOwner(owner);
         return items.stream().map(item -> {
-            Booking nextBooking = bookingList.stream()
-                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED).min(Comparator.comparing(Booking::getStart)).orElse(null);
-            Booking lastBooking = bookingList.stream()
-                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()) && x.getStart().isBefore(now) && x.getStatus() == BookingStatus.APPROVED).max(Comparator.comparing(Booking::getEnd)).orElse(null);
-            List<CommentDto> comments = commentList.stream()
-                    .filter(x -> Objects.equals(x.getItem().getId(), item.getId()))
+            Booking nextBooking = bookingList
+                    .stream().filter(x -> Objects.equals(x.getItem().getId(), item.getId())
+                            && x.getStart().isAfter(now) && x.getStatus() == BookingStatus.APPROVED)
+                    .min(Comparator.comparing(Booking::getStart)).orElse(null);
+            Booking lastBooking = bookingList
+                    .stream().filter(x -> Objects.equals(x.getItem().getId(), item.getId())
+                            && x.getStart().isBefore(now) && x.getStatus() == BookingStatus.APPROVED)
+                    .max(Comparator.comparing(Booking::getEnd)).orElse(null);
+            List<CommentDto> comments = commentList
+                    .stream().filter(x -> Objects.equals(x.getItem().getId(), item.getId()))
                     .sorted(Comparator.comparing(Comment::getCreated).reversed())
                     .map(commentMapper::toDto)
                     .collect(Collectors.toList());
